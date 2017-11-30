@@ -1,0 +1,227 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="WebbanhangModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityType Name="Order">
+    <Key>
+      <PropertyRef Name="OrderID" />
+    </Key>
+    <Property Name="OrderID" Type="int" Nullable="false" />
+    <Property Name="UserInfoID" Type="int" />
+    <Property Name="OrderDate" Type="datetime" />
+  </EntityType>
+  <EntityType Name="OrderDetail">
+    <Key>
+      <PropertyRef Name="OrderIDDetail" />
+    </Key>
+    <Property Name="OrderIDDetail" Type="int" Nullable="false" />
+    <Property Name="OrderID" Type="int" />
+    <Property Name="ShopOrderID" Type="int" />
+    <Property Name="ProductID" Type="int" />
+    <Property Name="Quantity" Type="int" />
+  </EntityType>
+  <EntityType Name="Products">
+    <Key>
+      <PropertyRef Name="ProductID" />
+    </Key>
+    <Property Name="ProductID" Type="int" Nullable="false" />
+    <Property Name="ProductName" Type="nvarchar" MaxLength="50" />
+    <Property Name="UserInfoID" Type="int" />
+    <Property Name="ProductTypeID" Type="int" />
+    <Property Name="Detail" Type="nvarchar(max)" />
+    <Property Name="Stock" Type="int" />
+    <Property Name="ProductImage" Type="nvarchar(max)" />
+    <Property Name="Price" Type="nvarchar" MaxLength="50" />
+    <Property Name="Date" Type="datetime" />
+  </EntityType>
+  <EntityType Name="ProductTypes">
+    <Key>
+      <PropertyRef Name="ProductTypeID" />
+    </Key>
+    <Property Name="ProductTypeID" Type="int" Nullable="false" />
+    <Property Name="ProductTypeName" Type="nvarchar" MaxLength="50" />
+    <Property Name="Description" Type="nvarchar(max)" />
+  </EntityType>
+  <EntityType Name="Ratings">
+    <Key>
+      <PropertyRef Name="RatingID" />
+    </Key>
+    <Property Name="RatingID" Type="int" Nullable="false" />
+    <Property Name="UserInfoID" Type="int" />
+    <Property Name="ProductID" Type="int" />
+    <Property Name="Rating" Type="int" />
+    <Property Name="Comment" Type="nvarchar(max)" />
+  </EntityType>
+  <EntityType Name="ShopOrder">
+    <Key>
+      <PropertyRef Name="ShopOrderID" />
+    </Key>
+    <Property Name="ShopOrderID" Type="int" Nullable="false" />
+    <Property Name="ShopID" Type="int" />
+    <Property Name="CustommerID" Type="int" />
+    <Property Name="OrderID" Type="int" />
+    <Property Name="State" Type="nchar" MaxLength="10" />
+    <Property Name="Date" Type="nchar" MaxLength="10" />
+  </EntityType>
+  <EntityType Name="UserInfos">
+    <Key>
+      <PropertyRef Name="UserInfoID" />
+    </Key>
+    <Property Name="UserInfoID" Type="int" Nullable="false" />
+    <Property Name="UserID" Type="int" />
+    <Property Name="Name" Type="nvarchar" MaxLength="50" />
+    <Property Name="Address" Type="nvarchar" MaxLength="50" />
+    <Property Name="PhoneNumber" Type="nvarchar" MaxLength="50" />
+  </EntityType>
+  <Association Name="FK_Order_UserInfos1">
+    <End Role="UserInfos" Type="Self.UserInfos" Multiplicity="0..1" />
+    <End Role="Order" Type="Self.Order" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="UserInfos">
+        <PropertyRef Name="UserInfoID" />
+      </Principal>
+      <Dependent Role="Order">
+        <PropertyRef Name="UserInfoID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_OrderDetail_ShopOrder">
+    <End Role="ShopOrder" Type="Self.ShopOrder" Multiplicity="0..1" />
+    <End Role="OrderDetail" Type="Self.OrderDetail" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="ShopOrder">
+        <PropertyRef Name="ShopOrderID" />
+      </Principal>
+      <Dependent Role="OrderDetail">
+        <PropertyRef Name="ShopOrderID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Products_ProductTypes1">
+    <End Role="ProductTypes" Type="Self.ProductTypes" Multiplicity="0..1" />
+    <End Role="Products" Type="Self.Products" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="ProductTypes">
+        <PropertyRef Name="ProductTypeID" />
+      </Principal>
+      <Dependent Role="Products">
+        <PropertyRef Name="ProductTypeID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Products_UserInfos1">
+    <End Role="UserInfos" Type="Self.UserInfos" Multiplicity="0..1" />
+    <End Role="Products" Type="Self.Products" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="UserInfos">
+        <PropertyRef Name="UserInfoID" />
+      </Principal>
+      <Dependent Role="Products">
+        <PropertyRef Name="UserInfoID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Ratings_Products1">
+    <End Role="Products" Type="Self.Products" Multiplicity="0..1" />
+    <End Role="Ratings" Type="Self.Ratings" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Products">
+        <PropertyRef Name="ProductID" />
+      </Principal>
+      <Dependent Role="Ratings">
+        <PropertyRef Name="ProductID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Ratings_UserInfos1">
+    <End Role="UserInfos" Type="Self.UserInfos" Multiplicity="0..1" />
+    <End Role="Ratings" Type="Self.Ratings" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="UserInfos">
+        <PropertyRef Name="UserInfoID" />
+      </Principal>
+      <Dependent Role="Ratings">
+        <PropertyRef Name="UserInfoID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_ShopOrder_Order">
+    <End Role="Order" Type="Self.Order" Multiplicity="0..1" />
+    <End Role="ShopOrder" Type="Self.ShopOrder" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Order">
+        <PropertyRef Name="OrderID" />
+      </Principal>
+      <Dependent Role="ShopOrder">
+        <PropertyRef Name="OrderID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_ShopOrder_UserInfos">
+    <End Role="UserInfos" Type="Self.UserInfos" Multiplicity="0..1" />
+    <End Role="ShopOrder" Type="Self.ShopOrder" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="UserInfos">
+        <PropertyRef Name="UserInfoID" />
+      </Principal>
+      <Dependent Role="ShopOrder">
+        <PropertyRef Name="ShopID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_ShopOrder_UserInfos1">
+    <End Role="UserInfos" Type="Self.UserInfos" Multiplicity="0..1" />
+    <End Role="ShopOrder" Type="Self.ShopOrder" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="UserInfos">
+        <PropertyRef Name="UserInfoID" />
+      </Principal>
+      <Dependent Role="ShopOrder">
+        <PropertyRef Name="CustommerID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityContainer Name="WebbanhangModelStoreContainer">
+    <EntitySet Name="Order" EntityType="Self.Order" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="OrderDetail" EntityType="Self.OrderDetail" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Products" EntityType="Self.Products" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="ProductTypes" EntityType="Self.ProductTypes" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Ratings" EntityType="Self.Ratings" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="ShopOrder" EntityType="Self.ShopOrder" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="UserInfos" EntityType="Self.UserInfos" Schema="dbo" store:Type="Tables" />
+    <AssociationSet Name="FK_Order_UserInfos1" Association="Self.FK_Order_UserInfos1">
+      <End Role="UserInfos" EntitySet="UserInfos" />
+      <End Role="Order" EntitySet="Order" />
+    </AssociationSet>
+    <AssociationSet Name="FK_OrderDetail_ShopOrder" Association="Self.FK_OrderDetail_ShopOrder">
+      <End Role="ShopOrder" EntitySet="ShopOrder" />
+      <End Role="OrderDetail" EntitySet="OrderDetail" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Products_ProductTypes1" Association="Self.FK_Products_ProductTypes1">
+      <End Role="ProductTypes" EntitySet="ProductTypes" />
+      <End Role="Products" EntitySet="Products" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Products_UserInfos1" Association="Self.FK_Products_UserInfos1">
+      <End Role="UserInfos" EntitySet="UserInfos" />
+      <End Role="Products" EntitySet="Products" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Ratings_Products1" Association="Self.FK_Ratings_Products1">
+      <End Role="Products" EntitySet="Products" />
+      <End Role="Ratings" EntitySet="Ratings" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Ratings_UserInfos1" Association="Self.FK_Ratings_UserInfos1">
+      <End Role="UserInfos" EntitySet="UserInfos" />
+      <End Role="Ratings" EntitySet="Ratings" />
+    </AssociationSet>
+    <AssociationSet Name="FK_ShopOrder_Order" Association="Self.FK_ShopOrder_Order">
+      <End Role="Order" EntitySet="Order" />
+      <End Role="ShopOrder" EntitySet="ShopOrder" />
+    </AssociationSet>
+    <AssociationSet Name="FK_ShopOrder_UserInfos" Association="Self.FK_ShopOrder_UserInfos">
+      <End Role="UserInfos" EntitySet="UserInfos" />
+      <End Role="ShopOrder" EntitySet="ShopOrder" />
+    </AssociationSet>
+    <AssociationSet Name="FK_ShopOrder_UserInfos1" Association="Self.FK_ShopOrder_UserInfos1">
+      <End Role="UserInfos" EntitySet="UserInfos" />
+      <End Role="ShopOrder" EntitySet="ShopOrder" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>

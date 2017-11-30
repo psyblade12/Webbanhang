@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>File Upload Demo</title>
+    <script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js'></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+    <script>
+        $(document).ready(function () {
+            $('#btnUploadFile').on('click', function () {
+                var data = new FormData()
+                var files = $("#fileUpload").get(0).files;
+                // Add the uploaded image content to the form data collection  
+                if (files.length > 0) {
+                    data.append("UploadedImage", files[0]);
+                }
+                // Make Ajax request with the contentType = false, and procesDate = false  
+                var ajaxRequest = $.ajax({
+                    type: "POST",
+                    url: "http://localhost:25225/api/Upload/user/PostUserImage",
+                    contentType: false,
+                    processData: false,
+                    data: data
+                });
+                ajaxRequest.done(function (xhr, textStatus) { });
+            });
+        });
+    </script>
+    
+</head>
+<body>
+    <div id="example">
+        <div class="demo-section k-header">
+            <h3>Image Upload</h3>
+            <br />
+            <div>
+                <label for="fileUpload">
+                    Select File to Upload:
+
+                    <input id="fileUpload" type="file" name="files" />
+                    <br />
+                    <br />
+                    <input id="btnUploadFile" type="button" value="Upload File" class="btn-primary" />
+            </div>
+        </div>
+    </div>
+    </div>
+</body>
+</html>  
