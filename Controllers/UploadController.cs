@@ -53,14 +53,17 @@ namespace CrystalReportIn_Webapi.Controllers
                             return Request.CreateResponse(HttpStatusCode.BadRequest, dict);  
                         }  
                         else  
-                        {  
-  
-                             
-  
-                            var filePath = HttpContext.Current.Server.MapPath("~/Userimage/" + postedFile.FileName);  
+                        {
+
+
+                            string savedFileName = DateTime.Now.ToShortDateString() + '_'+ DateTime.Now.ToShortTimeString() + '_'+ postedFile.FileName;
+                            savedFileName = savedFileName.Replace('/', '_');
+                            savedFileName = savedFileName.Replace(' ', '_');
+                            savedFileName = savedFileName.Replace(':', '_');
+                            var filePath = HttpContext.Current.Server.MapPath("~/Userimage/" + savedFileName);  
         
                             postedFile.SaveAs(filePath);
-                            return Request.CreateErrorResponse(HttpStatusCode.Created, "Userimage/"+ postedFile.FileName);
+                            return Request.CreateErrorResponse(HttpStatusCode.Created, "Userimage/"+ savedFileName);
 
                         }  
                     }  

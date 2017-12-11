@@ -16,6 +16,10 @@ using Microsoft.Owin.Security.OAuth;
 using Webbanhang.Models;
 using Webbanhang.Providers;
 using Webbanhang.Results;
+using System.Linq;
+using System.Net.Mail;
+using System.Text;
+using System.Net;
 
 namespace Webbanhang.Controllers
 {
@@ -331,6 +335,296 @@ namespace Webbanhang.Controllers
             var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
 
             IdentityResult result = await UserManager.CreateAsync(user, model.Password);
+            using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+            {
+                entities.Configuration.ProxyCreationEnabled = false;
+                string newID = entities.AspNetUsers.Where(x=>x.Email == model.Email).FirstOrDefault().Id.ToString();
+                string securityStamp = entities.AspNetUsers.Where(x => x.Email == model.Email).FirstOrDefault().SecurityStamp.ToString();
+
+                //Tạo 1 Userinfo trống cho tài khoản mới tạo:
+                UserInfo newuserinfo = new UserInfo();
+                newuserinfo.UserID = newID;
+                newuserinfo.Name = "";
+                newuserinfo.HomeAddress = "";
+                newuserinfo.Email = "";
+                newuserinfo.Cart = "";
+                entities.UserInfos.Add(newuserinfo);
+                entities.SaveChanges();
+
+                //Gửi email yêu cầu kích hoạt
+                SmtpClient client = new SmtpClient();
+                client.Port = 587;
+                client.Host = "smtp.gmail.com";
+                client.EnableSsl = true;
+                client.Timeout = 10000;
+                client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                client.UseDefaultCredentials = false;
+                client.Credentials = new System.Net.NetworkCredential("psybladebackup@gmail.com", "hoahoa123");
+                MailMessage mm = new MailMessage("psybladebackup@gmail.com", "thuantt190@gmail.com", "Kích hoạt tài khoản", securityStamp + " " + newID);
+                mm.BodyEncoding = UTF8Encoding.UTF8;
+                mm.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
+
+                client.Send(mm);
+            }
+                if (!result.Succeeded)
+            {
+                return GetErrorResult(result);
+            }
+
+            return Ok();
+        }
+
+        [AllowAnonymous]
+        [Route("Register2")]
+        public async Task<IHttpActionResult> Register2(RegisterBindingModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
+
+            IdentityResult result = await UserManager.CreateAsync(user, model.Password);
+            using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+            {
+                entities.Configuration.ProxyCreationEnabled = false;
+                string newID = entities.AspNetUsers.Where(x => x.Email == model.Email).FirstOrDefault().Id.ToString();
+                string confirmationToken = UserManager.GenerateEmailConfirmationTokenAsync(newID).Result;
+
+                //Tạo 1 Userinfo trống cho tài khoản mới tạo:
+                UserInfo newuserinfo = new UserInfo();
+                newuserinfo.UserID = newID;
+                newuserinfo.Name = "";
+                newuserinfo.HomeAddress = "";
+                newuserinfo.Email = "";
+                newuserinfo.Cart = "[]";
+                newuserinfo.VipNewsCount = 0;
+                entities.UserInfos.Add(newuserinfo);
+                entities.SaveChanges();
+
+                //Gửi email yêu cầu kích hoạt
+                SmtpClient client = new SmtpClient();
+                client.Port = 587;
+                client.Host = "smtp.gmail.com";
+                client.EnableSsl = true;
+                client.Timeout = 10000;
+                client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                client.UseDefaultCredentials = false;
+                client.Credentials = new System.Net.NetworkCredential("psybladebackup@gmail.com", "hoahoa123");
+                MailMessage mm = new MailMessage("psybladebackup@gmail.com", model.Email, "Kích hoạt tài khoản", "http://localhost:33733/EmailConfirmation.html?userid=" + newID + "&token=" + confirmationToken.Replace("+", "%252b"));
+                mm.BodyEncoding = UTF8Encoding.UTF8;
+                mm.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
+
+                client.Send(mm);
+            }
+            if (!result.Succeeded)
+            {
+                return GetErrorResult(result);
+            }
+
+            return Ok();
+        }
+
+
+        [AllowAnonymous]
+        [Route("ConfirmEmail")]
+        [HttpGet]
+        public HttpResponseMessage ConfirmEmail([FromUri]string userid, string token)
+        {
+            UserManager.ConfirmEmail(userid, token.Replace("%2b", "+"));
+            return Request.CreateResponse(HttpStatusCode.OK);
+            //if (rs.Succeeded)
+            //{
+            //    return Request.CreateResponse(HttpStatusCode.OK, "Confirmation Sucessful");
+            //}
+            //else
+            //{
+            //    return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Unsucessful");
+            //}
+        }
+
+
+        [AllowAnonymous]
+        [Route("ActivateAccount")]
+        [HttpGet]
+        public async Task<IHttpActionResult> ActivateAccount([FromUri] string userId, string token)
+        {
+            try
+            {
+                using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+                {
+                    IdentityResult result = UserManager.ConfirmEmailAsync(userId, token.Replace("%2b", "+")).Result;
+                    if (result.Succeeded)
+                    {
+                        IdentityResult result2;
+                        using (var context = new ApplicationDbContext())
+                        {
+                            var roleStore = new RoleStore<IdentityRole>(context);
+                            var roleManager = new RoleManager<IdentityRole>(roleStore);
+                            var userStore = new UserStore<ApplicationUser>(context);
+                            var userManager = new UserManager<ApplicationUser>(userStore);
+
+                            result2 = await userManager.AddToRoleAsync(userId, "ActivatedUser");
+                            //userManager.ConfirmEmail(userId,)
+                        }
+                        if (!result2.Succeeded)
+                        {
+                            return GetErrorResult(result2);
+                        }
+                        else
+                        {
+                            return Ok();
+                        }
+                    }
+                    else
+                    {
+                        return GetErrorResult(result);
+                    }
+                }
+            }
+            catch
+            {
+                return Ok();
+            }
+        }
+
+        [Route("RequestMerchantAccount")]
+        [HttpGet]
+        [Authorize]
+        public HttpResponseMessage RequestMerchantAccount()
+        {
+            try
+            {
+                using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+                {
+                    entities.Configuration.ProxyCreationEnabled = false;
+                    string uid = User.Identity.GetUserId();
+                    var entity = entities.UserInfos.FirstOrDefault(e => e.UserID == uid);
+                    if (entity != null)
+                    {
+                        if (entity.PhoneNumber != null && entity.CMND != null)
+                        {
+                            SmtpClient client = new SmtpClient();
+                            client.Port = 587;
+                            client.Host = "smtp.gmail.com";
+                            client.EnableSsl = true;
+                            client.Timeout = 10000;
+                            client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                            client.UseDefaultCredentials = false;
+                            client.Credentials = new System.Net.NetworkCredential("psybladebackup@gmail.com", "hoahoa123");
+                            MailMessage mm = new MailMessage("psybladebackup@gmail.com", User.Identity.Name, "Kích hoạt tài khoản merchant", "http://localhost:33733/ActivateMerchantAccount.html");
+                            mm.BodyEncoding = UTF8Encoding.UTF8;
+                            mm.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
+                            client.Send(mm);
+                            return Request.CreateResponse(HttpStatusCode.OK, "Đã gửi xác nhận đến email.");
+                        }
+                        else
+                        {
+                            return Request.CreateResponse(HttpStatusCode.NotAcceptable, "Phải nhập đúng CMND và số điện thoại");
+                        }
+                    }
+                    else
+                    {
+                        return Request.CreateErrorResponse(HttpStatusCode.NotFound, User.Identity.GetUserId().ToString() + "not found");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+        [Route("ConfirmMerchantAccount")]
+        [HttpGet]
+        [Authorize]
+        public HttpResponseMessage ConfirmMerchantAccount()
+        {
+            try
+            {
+                using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+                {
+                    entities.Configuration.ProxyCreationEnabled = false;
+                    string uid = User.Identity.GetUserId();
+                    var entity = entities.UserInfos.FirstOrDefault(e => e.UserID == uid);
+                    if (entity != null)
+                    {
+                        if (entity.PhoneNumber != null && entity.CMND != null)
+                        {
+                            using (var context = new ApplicationDbContext())
+                            {
+                                var roleStore = new RoleStore<IdentityRole>(context);
+                                var roleManager = new RoleManager<IdentityRole>(roleStore);
+                                var userStore = new UserStore<ApplicationUser>(context);
+                                var userManager = new UserManager<ApplicationUser>(userStore);
+
+                                userManager.AddToRole(uid, "Merchant");
+                                //userManager.ConfirmEmail(userId,)
+                            }
+                            return Request.CreateResponse(HttpStatusCode.OK, "Đã xác nhận");
+                        }
+                        else
+                        {
+                            return Request.CreateResponse(HttpStatusCode.NotAcceptable, "Phải nhập đúng CMND và số điện thoại");
+                        }
+                    }
+                    else
+                    {
+                        return Request.CreateErrorResponse(HttpStatusCode.NotFound, User.Identity.GetUserId().ToString() + "not found");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("AmIActivated")]
+        public HttpResponseMessage WhatRoleIsThisUser()
+        {
+            return Request.CreateErrorResponse(HttpStatusCode.OK, User.Identity.GetUserId() +", Is activated?: "+ User.IsInRole("ActivatedUser").ToString() + ", Is a Merchant: " + User.IsInRole("Merchant").ToString());
+        }
+
+        [AllowAnonymous]
+        [Route("Addrole")]
+        public async Task<IHttpActionResult> Addrole([FromUri]string newRole)
+        {
+            IdentityResult result;
+            using (var context = new ApplicationDbContext())
+            {
+                var roleStore = new RoleStore<IdentityRole>(context);
+                var roleManager = new RoleManager<IdentityRole>(roleStore);
+                result = await roleManager.CreateAsync(new IdentityRole() { Name = newRole });
+
+            }
+
+            if (!result.Succeeded)
+            {
+                return GetErrorResult(result);
+            }
+
+            return Ok();
+        }
+
+        [AllowAnonymous]
+        [Route("AddUserToARole")]
+        public async Task<IHttpActionResult> AddToArole([FromUri]string userId, [FromUri]string role)
+        {
+            IdentityResult result;
+            using (var context = new ApplicationDbContext())
+            {
+                var roleStore = new RoleStore<IdentityRole>(context);
+                var roleManager = new RoleManager<IdentityRole>(roleStore);
+
+                var userStore = new UserStore<ApplicationUser>(context);
+                var userManager = new UserManager<ApplicationUser>(userStore);
+
+                result = await userManager.AddToRoleAsync(userId, role);
+            }
 
             if (!result.Succeeded)
             {

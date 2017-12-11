@@ -93,6 +93,7 @@
     <EntitySetMapping Name="Products">
       <EntityTypeMapping TypeName="WebbanhangDBModel.Product">
         <MappingFragment StoreEntitySet="Products">
+          <ScalarProperty Name="OldPrice" ColumnName="OldPrice" />
           <ScalarProperty Name="ProductID" ColumnName="ProductID" />
           <ScalarProperty Name="UserID" ColumnName="UserID" />
           <ScalarProperty Name="ProductTypeID" ColumnName="ProductTypeID" />
@@ -129,6 +130,8 @@
     <EntitySetMapping Name="UserInfos">
       <EntityTypeMapping TypeName="WebbanhangDBModel.UserInfo">
         <MappingFragment StoreEntitySet="UserInfos">
+          <ScalarProperty Name="VipNewsCount" ColumnName="VipNewsCount" />
+          <ScalarProperty Name="CMND" ColumnName="CMND" />
           <ScalarProperty Name="UserInfoID" ColumnName="UserInfoID" />
           <ScalarProperty Name="UserID" ColumnName="UserID" />
           <ScalarProperty Name="Name" ColumnName="Name" />
@@ -147,5 +150,26 @@
         <ScalarProperty Name="Id" ColumnName="UserId" />
       </EndProperty>
     </AssociationSetMapping>
+    <EntitySetMapping Name="SponsoredNewsOrders">
+      <EntityTypeMapping TypeName="WebbanhangDBModel.SponsoredNewsOrder">
+        <MappingFragment StoreEntitySet="SponsoredNewsOrder">
+          <ScalarProperty Name="SponsoredNewsOrderDate" ColumnName="SponsoredNewsOrderDate" />
+          <ScalarProperty Name="SumPrice" ColumnName="SumPrice" />
+          <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+          <ScalarProperty Name="UserID" ColumnName="UserID" />
+          <ScalarProperty Name="SponsoredNewsOrderID" ColumnName="SponsoredNewsOrderID" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="SponsoredItems">
+      <EntityTypeMapping TypeName="WebbanhangDBModel.SponsoredItem">
+        <MappingFragment StoreEntitySet="SponsoredItem">
+          <ScalarProperty Name="EndDate" ColumnName="EndDate" />
+          <ScalarProperty Name="StartDate" ColumnName="StartDate" />
+          <ScalarProperty Name="ProductID" ColumnName="ProductID" />
+          <ScalarProperty Name="SponsoredItemID" ColumnName="SponsoredItemID" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
   </EntityContainerMapping>
 </Mapping>

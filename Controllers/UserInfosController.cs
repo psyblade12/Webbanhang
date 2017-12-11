@@ -85,6 +85,69 @@ namespace Webbanhang.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("api/UserInfos/CurrentUserInfo")]
+        [Authorize]
+        public HttpResponseMessage GetCurrentUserInfo()
+        {
+            try
+            {
+                using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+                {
+                    entities.Configuration.ProxyCreationEnabled = false;
+                    string uid = User.Identity.GetUserId();
+                    var entity = entities.UserInfos.FirstOrDefault(e => e.UserID == uid);
+                    if (entity != null)
+                    {
+                        return Request.CreateResponse(HttpStatusCode.OK, entity);
+                    }
+                    else
+                    {
+                        return Request.CreateErrorResponse(HttpStatusCode.NotFound, User.Identity.GetUserId().ToString() + "not found");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+        [HttpPut]
+        [Route("api/UserInfos/CurrentUserInfo")]
+        [Authorize]
+        public HttpResponseMessage EditCurrentUserInfo([FromBody]UserInfo userinfo)
+        {
+            try
+            {
+                using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+                {
+                    entities.Configuration.ProxyCreationEnabled = false;
+                    string uid = User.Identity.GetUserId();
+                    var entity = entities.UserInfos.FirstOrDefault(e => e.UserID == uid);
+                    if (entity == null)
+                    {
+                        return Request.CreateErrorResponse(HttpStatusCode.BadRequest,"");
+                    }
+                    else
+                    {
+                        entity.Name = userinfo.Name;
+                        entity.HomeAddress = userinfo.HomeAddress;
+                        entity.Email = userinfo.Email;
+                        entity.PhoneNumber = userinfo.PhoneNumber;
+                        entity.CMND = userinfo.CMND;
+                        entities.SaveChanges();
+
+                        return Request.CreateResponse(HttpStatusCode.OK, entity);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
         // api/product
         [HttpPost]
         [Authorize]

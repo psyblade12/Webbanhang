@@ -91,3 +91,5 @@ c:\users\thuan\documents\visual studio 2015\Projects\Webbanhang\Webbanhang\obj\D
 C:\Users\Thuan\documents\visual studio 2015\Projects\Webbanhang\Webbanhang\bin\System.Web.Cors.dll
 C:\Users\Thuan\documents\visual studio 2015\Projects\Webbanhang\Webbanhang\bin\System.Web.Http.Cors.dll
 C:\Users\Thuan\documents\visual studio 2015\Projects\Webbanhang\Webbanhang\bin\System.Web.Http.Cors.xml
+C:\Users\Thuan\documents\visual studio 2015\Projects\Webbanhang\Webbanhang\bin\Microsoft.Owin.Cors.dll
+C:\Users\Thuan\documents\visual studio 2015\Projects\Webbanhang\Webbanhang\bin\Microsoft.Owin.Cors.xml

@@ -12,18 +12,13 @@ namespace Webbanhang
     using System;
     using System.Collections.Generic;
     
-    public partial class UserInfo
+    public partial class SponsoredItem
     {
-        public int UserInfoID { get; set; }
-        public string UserID { get; set; }
-        public string Name { get; set; }
-        public string HomeAddress { get; set; }
-        public string Email { get; set; }
-        public string PhoneNumber { get; set; }
-        public string Cart { get; set; }
-        public string CMND { get; set; }
-        public Nullable<int> VipNewsCount { get; set; }
+        public int SponsoredItemID { get; set; }
+        public int ProductID { get; set; }
+        public Nullable<System.DateTime> StartDate { get; set; }
+        public Nullable<System.DateTime> EndDate { get; set; }
     
-        public virtual AspNetUser AspNetUser { get; set; }
+        public virtual Product Product { get; set; }
     }
 }

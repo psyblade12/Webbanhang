@@ -25,6 +25,7 @@ namespace Webbanhang
             this.Ratings = new HashSet<Rating>();
             this.UserInfos = new HashSet<UserInfo>();
             this.AspNetRoles = new HashSet<AspNetRole>();
+            this.SponsoredNewsOrders = new HashSet<SponsoredNewsOrder>();
         }
     
         public string Id { get; set; }
@@ -56,5 +57,7 @@ namespace Webbanhang
         public virtual ICollection<UserInfo> UserInfos { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<AspNetRole> AspNetRoles { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SponsoredNewsOrder> SponsoredNewsOrders { get; set; }
     }
 }

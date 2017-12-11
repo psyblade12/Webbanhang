@@ -37,5 +37,7 @@ namespace Webbanhang
         public virtual DbSet<ProductType> ProductTypes { get; set; }
         public virtual DbSet<Rating> Ratings { get; set; }
         public virtual DbSet<UserInfo> UserInfos { get; set; }
+        public virtual DbSet<SponsoredNewsOrder> SponsoredNewsOrders { get; set; }
+        public virtual DbSet<SponsoredItem> SponsoredItems { get; set; }
     }
 }

@@ -30,6 +30,10 @@
         <AssociationConnector Association="WebbanhangDBModel.FK__Products__Produc__286302EC" ManuallyRouted="false" />
         <AssociationConnector Association="WebbanhangDBModel.FK__Ratings__Product__2C3393D0" ManuallyRouted="false" />
         <AssociationConnector Association="WebbanhangDBModel.AspNetUserRoles" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="WebbanhangDBModel.SponsoredNewsOrder" Width="1.5" PointX="8.5" PointY="0.75" />
+        <AssociationConnector Association="WebbanhangDBModel.FK__Sponsored__UserI__49C3F6B7" />
+        <EntityTypeShape EntityType="WebbanhangDBModel.SponsoredItem" Width="1.5" PointX="10.5" PointY="13.25" />
+        <AssociationConnector Association="WebbanhangDBModel.FK__Sponsored__Produ__4F7CD00D" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -12,11 +12,6 @@ using System.Text;
 
 namespace Webbanhang.Controllers
 {
-    public class CartEntity
-    {
-        public int productID { get; set; }
-        public int quantity { get; set; }
-    }
     public class ProductController : ApiController
     {
         [HttpGet]
@@ -30,9 +25,9 @@ namespace Webbanhang.Controllers
             client.Timeout = 10000;
             client.DeliveryMethod = SmtpDeliveryMethod.Network;
             client.UseDefaultCredentials = false;
-            client.Credentials = new System.Net.NetworkCredential("dinhtai018@gmail.com", "unpjkmgajosgyxzv");
+            client.Credentials = new System.Net.NetworkCredential("psybladebackup@gmail.com", "hoahoa123");
 
-            MailMessage mm = new MailMessage("dinhtai018@gmail.com", "thuantt190@gmail.com", "test", "test");
+            MailMessage mm = new MailMessage("psybladebackup@gmail.com", "thuantt190@gmail.com", "test", "test");
             mm.BodyEncoding = UTF8Encoding.UTF8;
             mm.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
 
@@ -77,66 +72,6 @@ namespace Webbanhang.Controllers
         }
 
         [HttpGet]
-        [Route("api/Products/AddToCart")]
-        public HttpResponseMessage AddToCart([FromUri]int pid = 1, int q = 1)
-        {
-            using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
-            {
-                entities.Configuration.ProxyCreationEnabled = false;
-
-                string userid = HttpContext.Current.User.Identity.GetUserId();
-                List<CartEntity> CartItemList = new List<CartEntity>();
-                CartItemList = JsonConvert.DeserializeObject<List<CartEntity>>(entities.UserInfos.FirstOrDefault(e => e.UserID == userid).Cart);
-
-                //Tìm thử xem có sẵn chưa, nếu có rồi thì chỉ cộng thêm số lượng
-                bool flag = false;
-                foreach (CartEntity item in CartItemList)
-                {
-                    if (item.productID == pid)
-                    {
-                        item.quantity = item.quantity + q;
-                        flag = true;
-                    }
-                }
-                if (flag == false)
-                {
-                    CartItemList.Add(new CartEntity { productID = pid, quantity = q });
-                }
-
-                var entity = entities.UserInfos.FirstOrDefault(e => e.UserID == userid);
-                entity.Cart = JsonConvert.SerializeObject(CartItemList);
-
-                entities.SaveChanges();
-            }
-            return Request.CreateResponse(HttpStatusCode.OK);
-        }
-
-        [HttpGet]
-        [Route("api/Products/RemoveFromCart")]
-        public HttpResponseMessage RemoveFromCart([FromUri]int pid = 1)
-        {
-            using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
-            {
-                entities.Configuration.ProxyCreationEnabled = false;
-
-                string userid = HttpContext.Current.User.Identity.GetUserId();
-                List<CartEntity> CartItemList = new List<CartEntity>();
-                CartItemList = JsonConvert.DeserializeObject<List<CartEntity>>(entities.UserInfos.FirstOrDefault(e => e.UserID == userid).Cart);
-
-                CartEntity removeItem = CartItemList.Where(x => x.productID == pid).FirstOrDefault();
-                CartItemList.Remove(removeItem);
-
-                var entity = entities.UserInfos.FirstOrDefault(e => e.UserID == userid);
-                entity.Cart = JsonConvert.SerializeObject(CartItemList);
-
-                entities.SaveChanges();
-            }
-            return Request.CreateResponse(HttpStatusCode.OK);
-        }
-
-
-
-        [HttpGet]
         public HttpResponseMessage LoadAllProduct()
         {
             try
@@ -155,9 +90,70 @@ namespace Webbanhang.Controllers
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
             }
         }
-        
+
+        [HttpGet]
+        [Route("api/Products/LoadAllMyProducts")]
+        [Authorize]
+        public HttpResponseMessage LoadAllMyProduct()
+        {
+            try
+            {
+                using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+                {
+                    entities.Configuration.ProxyCreationEnabled = false;
+                    string currentUserID = User.Identity.GetUserId();
+                    var result = entities.Products.Where(x => x.UserID == currentUserID).ToList();
+                    return Request.CreateResponse(HttpStatusCode.OK, result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+
         [HttpGet]
         public HttpResponseMessage LoadProductByID(int id)
+        {
+            try
+            {
+                using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+                {
+                    entities.Configuration.ProxyCreationEnabled = false;
+                    var entity = entities.Products.Include("AspNetUser").Include("ProductType").Include("Brand").FirstOrDefault(e => e.ProductID == id);
+                    if (entity != null)
+                    {
+                        var result = new {
+                            productID = entity.ProductID,
+                            userName = entity.AspNetUser.UserName,
+                            productType = entity.ProductType.ProductTypeName,
+                            brandName =  entity.Brand.BrandName,
+                            productName = entity.ProductName,
+                            Detail = entity.Detail,
+                            Stock = entity.Stock,
+                            ProductImage = entity.ProductImage,
+                            OldPrice = entity.OldPrice,
+                            Price = entity.Price,
+                            CreationDate = entity.CreationDate
+                        };
+                        return Request.CreateResponse(HttpStatusCode.OK, result);
+                    }
+                    else
+                    {
+                        return Request.CreateErrorResponse(HttpStatusCode.NotFound, id.ToString() + "not found");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+        [HttpGet]
+        [Route("api/Products/LoadProductByIDforEdit")]
+        public HttpResponseMessage LoadProductByIDforEdit(int id)
         {
             try
             {
@@ -190,6 +186,8 @@ namespace Webbanhang.Controllers
             {
                 using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
                 {
+                    product.CreationDate = DateTime.Now;
+                    product.UserID = User.Identity.GetUserId();
                     entities.Configuration.ProxyCreationEnabled = false;
                     entities.Products.Add(product);
                     entities.SaveChanges();
@@ -220,18 +218,25 @@ namespace Webbanhang.Controllers
                     }
                     else
                     {
-                        entity.UserID = product.UserID;
-                        entity.ProductTypeID = product.ProductTypeID;
-                        entity.BrandID = product.BrandID;
-                        entity.ProductName = product.ProductName;
-                        entity.Detail = product.Detail;
-                        entity.Stock = product.Stock;
-                        entity.Price = product.Price;
-                        entity.CreationDate = product.CreationDate;
+                        if (entity.UserID == User.Identity.GetUserId())
+                        {
+                            entity.ProductTypeID = product.ProductTypeID;
+                            entity.BrandID = product.BrandID;
+                            entity.ProductName = product.ProductName;
+                            entity.Detail = product.Detail;
+                            entity.Stock = product.Stock;
+                            entity.OldPrice = product.OldPrice;
+                            entity.Price = product.Price;
+                            entity.ProductImage = product.ProductImage;
 
-                        entities.SaveChanges();
+                            entities.SaveChanges();
 
-                        return Request.CreateResponse(HttpStatusCode.OK, entity);
+                            return Request.CreateResponse(HttpStatusCode.OK, "Đã sửa");
+                        }
+                        else
+                        {
+                            return Request.CreateErrorResponse(HttpStatusCode.BadRequest,"Có lỗi xảy ra");
+                        }
                     }
                 }
             }
@@ -259,9 +264,16 @@ namespace Webbanhang.Controllers
                     }
                     else
                     {
-                        entities.Products.Remove(entity);
-                        entities.SaveChanges();
-                        return Request.CreateResponse(HttpStatusCode.OK, "Delete OK");
+                        if (entity.UserID == User.Identity.GetUserId())
+                        {
+                            entities.Products.Remove(entity);
+                            entities.SaveChanges();
+                            return Request.CreateResponse(HttpStatusCode.OK, "Delete OK");
+                        }
+                        else
+                        {
+                            return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Có lỗi xảy ra");
+                        }
                     }
                 }
             }
