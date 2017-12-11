@@ -91,6 +91,8 @@
     <Property Name="UserID" Type="nvarchar" MaxLength="128" Nullable="false" />
     <Property Name="OrderDate" Type="datetime" />
     <Property Name="OrderAddress" Type="nvarchar(max)" />
+    <Property Name="OrderPhoneNumber" Type="nvarchar(max)" />
+    <Property Name="OrderNameofUser" Type="nvarchar(max)" />
   </EntityType>
   <EntityType Name="Products">
     <Key>

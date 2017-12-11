@@ -23,6 +23,7 @@ namespace Webbanhang.Controllers
         public string productName { get; set; }
         public string productImage { get; set; }
         public int quantity { get; set; }
+        public int sumprice { get; set; }
     }
     public class CartController : ApiController
     {
@@ -44,6 +45,7 @@ namespace Webbanhang.Controllers
                     newtoAdd.productName = productInfo.ProductName;
                     newtoAdd.productImage = productInfo.ProductImage;
                     newtoAdd.quantity = x.quantity;
+                    newtoAdd.sumprice = x.quantity * Convert.ToInt32(productInfo.Price);
                     result.Add(newtoAdd);
                 }
                 return Request.CreateResponse(HttpStatusCode.OK, result);

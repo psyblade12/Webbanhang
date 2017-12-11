@@ -101,6 +101,8 @@
     <Property Name="OrderAddress" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
     <NavigationProperty Name="AspNetUser" Relationship="Self.FK__Orders__UserID__300424B4" FromRole="Orders" ToRole="AspNetUsers" />
     <NavigationProperty Name="OrderItems" Relationship="Self.FK__OrderItem__Order__32E0915F" FromRole="Orders" ToRole="OrderItems" />
+    <Property Name="OrderPhoneNumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="OrderNameofUser" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
   </EntityType>
   <EntityType Name="Product">
     <Key>

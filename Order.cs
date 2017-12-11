@@ -24,6 +24,8 @@ namespace Webbanhang
         public string UserID { get; set; }
         public Nullable<System.DateTime> OrderDate { get; set; }
         public string OrderAddress { get; set; }
+        public string OrderPhoneNumber { get; set; }
+        public string OrderNameofUser { get; set; }
     
         public virtual AspNetUser AspNetUser { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

@@ -9,17 +9,23 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using System.Web;
 using Newtonsoft.Json;
+using Webbanhang.Models;
 
 namespace Webbanhang.Controllers
 {
     public class OrdersController : ApiController
     {
-        [HttpGet]
+        [HttpPost]
         [Route("api/Orders/MakeOrder")]
-        public HttpResponseMessage MakeOrder()
+        public HttpResponseMessage MakeOrder(InfoBindingModel info)
         {
             try
             {
+                //Kiểm tra chuẩn
+                if (!ModelState.IsValid)
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
+                }
                 //Get cart
                 string cart;
                 using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
@@ -31,7 +37,9 @@ namespace Webbanhang.Controllers
                     Order newOrder = new Order();
                     newOrder.UserID = userid;
                     newOrder.OrderDate = DateTime.Now;
-                    newOrder.OrderAddress = entities.UserInfos.FirstOrDefault(x => x.UserID == userid).HomeAddress;
+                    newOrder.OrderAddress = info.homeAddress;
+                    newOrder.OrderNameofUser = info.name;
+                    newOrder.OrderPhoneNumber = info.phoneNumber;
                     entities.Orders.Add(newOrder);
                     entities.SaveChanges();
                     foreach (CartEntity item in itemBuyList)
@@ -51,11 +59,11 @@ namespace Webbanhang.Controllers
 
                         //Reduce quantity.
                         var reduceQuantity = entities.Products.FirstOrDefault(e => e.ProductID == maitem);
-                        if (reduceQuantity.Stock <= 0)
+                        if (reduceQuantity.Stock <= item.quantity)
                         {
                             throw new Exception("Quantity is higher than stock");
                         }
-                        reduceQuantity.Stock = reduceQuantity.Stock - 1;
+                        reduceQuantity.Stock = reduceQuantity.Stock - item.quantity;
 
                         //Save changes
                         entities.SaveChanges();

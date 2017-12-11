@@ -83,6 +83,8 @@
     <EntitySetMapping Name="Orders">
       <EntityTypeMapping TypeName="WebbanhangDBModel.Order">
         <MappingFragment StoreEntitySet="Orders">
+          <ScalarProperty Name="OrderNameofUser" ColumnName="OrderNameofUser" />
+          <ScalarProperty Name="OrderPhoneNumber" ColumnName="OrderPhoneNumber" />
           <ScalarProperty Name="OrderID" ColumnName="OrderID" />
           <ScalarProperty Name="UserID" ColumnName="UserID" />
           <ScalarProperty Name="OrderDate" ColumnName="OrderDate" />
