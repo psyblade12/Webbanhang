@@ -259,10 +259,14 @@
     <Compile Include="AspNetUserLogin.cs">
       <DependentUpon>WebbanhangDBDataModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="BanAccount.cs">
+      <DependentUpon>WebbanhangDBDataModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Brand.cs">
       <DependentUpon>WebbanhangDBDataModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\BanAccountController.cs" />
     <Compile Include="Controllers\BrandsController.cs" />
     <Compile Include="Controllers\CartController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -271,6 +275,7 @@
     <Compile Include="Controllers\ProductController.cs" />
     <Compile Include="Controllers\ProductTypesController.cs" />
     <Compile Include="Controllers\RatingController.cs" />
+    <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="Controllers\SponsoredItemsController.cs" />
     <Compile Include="Controllers\SponsoredNewsOrdersController.cs" />
     <Compile Include="Controllers\UploadController.cs" />
@@ -301,6 +306,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\ApplicationOAuthProvider.cs" />
     <Compile Include="Rating.cs">
+      <DependentUpon>WebbanhangDBDataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Report.cs">
       <DependentUpon>WebbanhangDBDataModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Results\ChallengeResult.cs" />

@@ -26,6 +26,8 @@ namespace Webbanhang
             this.UserInfos = new HashSet<UserInfo>();
             this.AspNetRoles = new HashSet<AspNetRole>();
             this.SponsoredNewsOrders = new HashSet<SponsoredNewsOrder>();
+            this.BanAccounts = new HashSet<BanAccount>();
+            this.Reports = new HashSet<Report>();
         }
     
         public string Id { get; set; }
@@ -59,5 +61,9 @@ namespace Webbanhang
         public virtual ICollection<AspNetRole> AspNetRoles { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SponsoredNewsOrder> SponsoredNewsOrders { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<BanAccount> BanAccounts { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Report> Reports { get; set; }
     }
 }

@@ -64,6 +64,8 @@
     <NavigationProperty Name="UserInfos" Relationship="Self.FK__UserInfos__UserI__24927208" FromRole="AspNetUsers" ToRole="UserInfos" />
     <NavigationProperty Name="AspNetRoles" Relationship="Self.AspNetUserRoles" FromRole="AspNetUsers" ToRole="AspNetRoles" />
     <NavigationProperty Name="SponsoredNewsOrders" Relationship="WebbanhangDBModel.FK__Sponsored__UserI__49C3F6B7" FromRole="AspNetUser" ToRole="SponsoredNewsOrder" />
+    <NavigationProperty Name="BanAccounts" Relationship="WebbanhangDBModel.FK__BanAccoun__UserI__693CA210" FromRole="AspNetUser" ToRole="BanAccount" />
+    <NavigationProperty Name="Reports" Relationship="WebbanhangDBModel.FK__Report__UserID__6C190EBB" FromRole="AspNetUser" ToRole="Report" />
   </EntityType>
   <EntityType Name="Brand">
     <Key>
@@ -125,6 +127,7 @@
     <NavigationProperty Name="Ratings" Relationship="Self.FK__Ratings__Product__2C3393D0" FromRole="Products" ToRole="Ratings" />
     <NavigationProperty Name="SponsoredItems" Relationship="WebbanhangDBModel.FK__Sponsored__Produ__4F7CD00D" FromRole="Product" ToRole="SponsoredItem" />
     <Property Name="OldPrice" Type="Int32" />
+    <NavigationProperty Name="Reports" Relationship="WebbanhangDBModel.FK__Report__ProductI__6D0D32F4" FromRole="Product" ToRole="Report" />
   </EntityType>
   <EntityType Name="ProductType">
     <Key>
@@ -389,6 +392,20 @@
       <End Role="Product" EntitySet="Products" />
       <End Role="SponsoredItem" EntitySet="SponsoredItems" />
     </AssociationSet>
+    <EntitySet Name="BanAccounts" EntityType="WebbanhangDBModel.BanAccount" />
+    <EntitySet Name="Reports" EntityType="WebbanhangDBModel.Report" />
+    <AssociationSet Name="FK__BanAccoun__UserI__693CA210" Association="WebbanhangDBModel.FK__BanAccoun__UserI__693CA210">
+      <End Role="AspNetUser" EntitySet="AspNetUsers" />
+      <End Role="BanAccount" EntitySet="BanAccounts" />
+    </AssociationSet>
+    <AssociationSet Name="FK__Report__UserID__6C190EBB" Association="WebbanhangDBModel.FK__Report__UserID__6C190EBB">
+      <End Role="AspNetUser" EntitySet="AspNetUsers" />
+      <End Role="Report" EntitySet="Reports" />
+    </AssociationSet>
+    <AssociationSet Name="FK__Report__ProductI__6D0D32F4" Association="WebbanhangDBModel.FK__Report__ProductI__6D0D32F4">
+      <End Role="Product" EntitySet="Products" />
+      <End Role="Report" EntitySet="Reports" />
+    </AssociationSet>
   </EntityContainer>
   <EntityType Name="SponsoredNewsOrder">
     <Key>
@@ -431,6 +448,64 @@
         <PropertyRef Name="ProductID" />
       </Principal>
       <Dependent Role="SponsoredItem">
+        <PropertyRef Name="ProductID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityType Name="BanAccount">
+    <Key>
+      <PropertyRef Name="BanAccountID" />
+    </Key>
+    <Property Name="BanAccountID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="UserID" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+    <Property Name="Reason" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="LiftDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="AspNetUser" Relationship="WebbanhangDBModel.FK__BanAccoun__UserI__693CA210" FromRole="BanAccount" ToRole="AspNetUser" />
+  </EntityType>
+  <EntityType Name="Report">
+    <Key>
+      <PropertyRef Name="ReportID" />
+    </Key>
+    <Property Name="ReportID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="UserID" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+    <Property Name="ProductID" Type="Int32" Nullable="false" />
+    <Property Name="Reason" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="IsRead" Type="Boolean" />
+    <NavigationProperty Name="AspNetUser" Relationship="WebbanhangDBModel.FK__Report__UserID__6C190EBB" FromRole="Report" ToRole="AspNetUser" />
+    <NavigationProperty Name="Product" Relationship="WebbanhangDBModel.FK__Report__ProductI__6D0D32F4" FromRole="Report" ToRole="Product" />
+  </EntityType>
+  <Association Name="FK__BanAccoun__UserI__693CA210">
+    <End Type="WebbanhangDBModel.AspNetUser" Role="AspNetUser" Multiplicity="1" />
+    <End Type="WebbanhangDBModel.BanAccount" Role="BanAccount" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="AspNetUser">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="BanAccount">
+        <PropertyRef Name="UserID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK__Report__UserID__6C190EBB">
+    <End Type="WebbanhangDBModel.AspNetUser" Role="AspNetUser" Multiplicity="1" />
+    <End Type="WebbanhangDBModel.Report" Role="Report" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="AspNetUser">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Report">
+        <PropertyRef Name="UserID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK__Report__ProductI__6D0D32F4">
+    <End Type="WebbanhangDBModel.Product" Role="Product" Multiplicity="1" />
+    <End Type="WebbanhangDBModel.Report" Role="Report" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Product">
+        <PropertyRef Name="ProductID" />
+      </Principal>
+      <Dependent Role="Report">
         <PropertyRef Name="ProductID" />
       </Dependent>
     </ReferentialConstraint>

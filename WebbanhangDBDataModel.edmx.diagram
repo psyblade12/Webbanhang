@@ -34,6 +34,11 @@
         <AssociationConnector Association="WebbanhangDBModel.FK__Sponsored__UserI__49C3F6B7" />
         <EntityTypeShape EntityType="WebbanhangDBModel.SponsoredItem" Width="1.5" PointX="10.5" PointY="13.25" />
         <AssociationConnector Association="WebbanhangDBModel.FK__Sponsored__Produ__4F7CD00D" />
+        <EntityTypeShape EntityType="WebbanhangDBModel.BanAccount" Width="1.5" PointX="8.5" PointY="16.75" />
+        <EntityTypeShape EntityType="WebbanhangDBModel.Report" Width="1.5" PointX="13.5" PointY="2.125" />
+        <AssociationConnector Association="WebbanhangDBModel.FK__BanAccoun__UserI__693CA210" />
+        <AssociationConnector Association="WebbanhangDBModel.FK__Report__UserID__6C190EBB" />
+        <AssociationConnector Association="WebbanhangDBModel.FK__Report__ProductI__6D0D32F4" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

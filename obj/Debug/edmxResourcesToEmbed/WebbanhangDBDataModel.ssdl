@@ -61,6 +61,15 @@
     <Property Name="AccessFailedCount" Type="int" Nullable="false" />
     <Property Name="UserName" Type="nvarchar" MaxLength="256" Nullable="false" />
   </EntityType>
+  <EntityType Name="BanAccount">
+    <Key>
+      <PropertyRef Name="BanAccountID" />
+    </Key>
+    <Property Name="BanAccountID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="UserID" Type="nvarchar" MaxLength="128" Nullable="false" />
+    <Property Name="Reason" Type="nvarchar(max)" />
+    <Property Name="LiftDate" Type="datetime" />
+  </EntityType>
   <EntityType Name="Brands">
     <Key>
       <PropertyRef Name="BrandID" />
@@ -128,6 +137,16 @@
     <Property Name="Rating" Type="int" />
     <Property Name="Detail" Type="nvarchar(max)" />
   </EntityType>
+  <EntityType Name="Report">
+    <Key>
+      <PropertyRef Name="ReportID" />
+    </Key>
+    <Property Name="ReportID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="UserID" Type="nvarchar" MaxLength="128" Nullable="false" />
+    <Property Name="ProductID" Type="int" Nullable="false" />
+    <Property Name="Reason" Type="nvarchar(max)" />
+    <Property Name="IsRead" Type="bit" />
+  </EntityType>
   <EntityType Name="SponsoredItem">
     <Key>
       <PropertyRef Name="SponsoredItemID" />
@@ -161,6 +180,18 @@
     <Property Name="CMND" Type="nvarchar" MaxLength="50" />
     <Property Name="VipNewsCount" Type="int" />
   </EntityType>
+  <Association Name="FK__BanAccoun__UserI__693CA210">
+    <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="1" />
+    <End Role="BanAccount" Type="Self.BanAccount" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="AspNetUsers">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="BanAccount">
+        <PropertyRef Name="UserID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
   <Association Name="FK__OrderItem__Order__32E0915F">
     <End Role="Orders" Type="Self.Orders" Multiplicity="1" />
     <End Role="OrderItems" Type="Self.OrderItems" Multiplicity="*" />
@@ -269,6 +300,30 @@
       </Dependent>
     </ReferentialConstraint>
   </Association>
+  <Association Name="FK__Report__ProductI__6D0D32F4">
+    <End Role="Products" Type="Self.Products" Multiplicity="1" />
+    <End Role="Report" Type="Self.Report" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Products">
+        <PropertyRef Name="ProductID" />
+      </Principal>
+      <Dependent Role="Report">
+        <PropertyRef Name="ProductID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK__Report__UserID__6C190EBB">
+    <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="1" />
+    <End Role="Report" Type="Self.Report" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="AspNetUsers">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Report">
+        <PropertyRef Name="UserID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
   <Association Name="FK__Sponsored__Produ__4F7CD00D">
     <End Role="Products" Type="Self.Products" Multiplicity="1" />
     <End Role="SponsoredItem" Type="Self.SponsoredItem" Multiplicity="*" />
@@ -368,15 +423,21 @@
     <EntitySet Name="AspNetUserLogins" EntityType="Self.AspNetUserLogins" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="AspNetUserRoles" EntityType="Self.AspNetUserRoles" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="AspNetUsers" EntityType="Self.AspNetUsers" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="BanAccount" EntityType="Self.BanAccount" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="Brands" EntityType="Self.Brands" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="OrderItems" EntityType="Self.OrderItems" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="Orders" EntityType="Self.Orders" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="Products" EntityType="Self.Products" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="ProductTypes" EntityType="Self.ProductTypes" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="Ratings" EntityType="Self.Ratings" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Report" EntityType="Self.Report" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="SponsoredItem" EntityType="Self.SponsoredItem" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="SponsoredNewsOrder" EntityType="Self.SponsoredNewsOrder" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="UserInfos" EntityType="Self.UserInfos" Schema="dbo" store:Type="Tables" />
+    <AssociationSet Name="FK__BanAccoun__UserI__693CA210" Association="Self.FK__BanAccoun__UserI__693CA210">
+      <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+      <End Role="BanAccount" EntitySet="BanAccount" />
+    </AssociationSet>
     <AssociationSet Name="FK__OrderItem__Order__32E0915F" Association="Self.FK__OrderItem__Order__32E0915F">
       <End Role="Orders" EntitySet="Orders" />
       <End Role="OrderItems" EntitySet="OrderItems" />
@@ -412,6 +473,14 @@
     <AssociationSet Name="FK__Ratings__UserID__2D27B809" Association="Self.FK__Ratings__UserID__2D27B809">
       <End Role="AspNetUsers" EntitySet="AspNetUsers" />
       <End Role="Ratings" EntitySet="Ratings" />
+    </AssociationSet>
+    <AssociationSet Name="FK__Report__ProductI__6D0D32F4" Association="Self.FK__Report__ProductI__6D0D32F4">
+      <End Role="Products" EntitySet="Products" />
+      <End Role="Report" EntitySet="Report" />
+    </AssociationSet>
+    <AssociationSet Name="FK__Report__UserID__6C190EBB" Association="Self.FK__Report__UserID__6C190EBB">
+      <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+      <End Role="Report" EntitySet="Report" />
     </AssociationSet>
     <AssociationSet Name="FK__Sponsored__Produ__4F7CD00D" Association="Self.FK__Sponsored__Produ__4F7CD00D">
       <End Role="Products" EntitySet="Products" />

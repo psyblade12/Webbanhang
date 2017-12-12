@@ -39,5 +39,7 @@ namespace Webbanhang
         public virtual DbSet<UserInfo> UserInfos { get; set; }
         public virtual DbSet<SponsoredNewsOrder> SponsoredNewsOrders { get; set; }
         public virtual DbSet<SponsoredItem> SponsoredItems { get; set; }
+        public virtual DbSet<BanAccount> BanAccounts { get; set; }
+        public virtual DbSet<Report> Reports { get; set; }
     }
 }

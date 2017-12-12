@@ -20,6 +20,7 @@ namespace Webbanhang
             this.OrderItems = new HashSet<OrderItem>();
             this.Ratings = new HashSet<Rating>();
             this.SponsoredItems = new HashSet<SponsoredItem>();
+            this.Reports = new HashSet<Report>();
         }
     
         public int ProductID { get; set; }
@@ -43,5 +44,7 @@ namespace Webbanhang
         public virtual ICollection<Rating> Ratings { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SponsoredItem> SponsoredItems { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Report> Reports { get; set; }
     }
 }
