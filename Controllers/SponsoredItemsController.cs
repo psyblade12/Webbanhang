@@ -27,6 +27,26 @@ namespace Webbanhang.Controllers
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
             }
         }
+
+        [HttpGet]
+        [Route("api/Products/LoadAllSponsoredItemsInTime")]
+        public HttpResponseMessage LoadAllSponsoredItemsInTime()
+        {
+            try
+            {
+                using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+                {
+                    entities.Configuration.ProxyCreationEnabled = false;
+                    var result = entities.SponsoredItems.Where(x => x.EndDate > DateTime.Now).ToList();
+                    return Request.CreateResponse(HttpStatusCode.OK, result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
         [HttpGet]
         [Route("api/SponsoredItems/LoadAllMySponsored")]
         [Authorize]

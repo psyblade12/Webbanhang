@@ -31,6 +31,25 @@ namespace Webbanhang.Controllers
         }
 
         [HttpGet]
+        [Route("api/Products/LoadAllOrderItemsInTime")]
+        public HttpResponseMessage LoadAllOrderItemsInTime()
+        {
+            try
+            {
+                using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+                {
+                    entities.Configuration.ProxyCreationEnabled = false;
+                    var a = Request.CreateResponse(HttpStatusCode.OK, entities.OrderItems.ToList());
+                    return a;
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+        [HttpGet]
         public HttpResponseMessage LoadOrderItemByID(int id)
         {
             try
