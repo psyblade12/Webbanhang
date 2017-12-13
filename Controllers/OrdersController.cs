@@ -43,7 +43,9 @@ namespace Webbanhang.Controllers
                     newOrder.OrderNameofUser = info.name;
                     newOrder.OrderPhoneNumber = info.phoneNumber;
                     entities.Orders.Add(newOrder);
+
                     entities.SaveChanges();
+
                     foreach (CartEntity item in itemBuyList)
                     {
                         int maitem = Convert.ToInt32(item.productID);
@@ -53,8 +55,8 @@ namespace Webbanhang.Controllers
                         //var temp = entities.Products.Where(x => x.ProductID == maitem).ToList();
                         orderitem.ProductID = maitem;
                         orderitem.Quantity = item.quantity;
-                        orderitem.Price = Convert.ToInt32(entities.Products.FirstOrDefault(x => x.ProductID == maitem).Price.ToString());
-                        orderitem.FinalPrice = Convert.ToInt32(entities.Products.FirstOrDefault(x => x.ProductID == maitem).Price.ToString());
+                        orderitem.Price = Convert.ToInt32(entities.Products.FirstOrDefault(x => x.ProductID == maitem).Price.ToString()) * item.quantity;
+                        orderitem.FinalPrice = Convert.ToInt32(entities.Products.FirstOrDefault(x => x.ProductID == maitem).Price.ToString())*item.quantity;
                         orderitem.OrderState = "Waiting";
                         orderitem.Paided = false;
                         entities.OrderItems.Add(orderitem);
@@ -66,6 +68,10 @@ namespace Webbanhang.Controllers
                             throw new Exception("Quantity is higher than stock");
                         }
                         reduceQuantity.Stock = reduceQuantity.Stock - item.quantity;
+
+                        //Mua xong thì xóa cart
+                        var cartToDelete = entities.UserInfos.FirstOrDefault(x => x.UserID == userid);
+                        cartToDelete.Cart = "[]";
 
                         //Save changes
                         entities.SaveChanges();
@@ -86,9 +92,10 @@ namespace Webbanhang.Controllers
                     client.Send(mm);
                     //Hết phần gửi email.
 
-
-                    var a = Request.CreateResponse(HttpStatusCode.OK, "Order made");
-                    return a;
+                    //Chuẩn bị biến để return về hóa đơn
+                    int lastIDofOrder = entities.Orders.Max(x => x.OrderID);
+                    var invoice = entities.OrderItems.Where(x => x.OrderID == lastIDofOrder).GroupBy(x => new { x.OrderID, x.Order.OrderDate, x.Order.AspNetUser.Id, x.Order.OrderNameofUser, x.Order.OrderPhoneNumber, x.Order.OrderAddress, x.Order.AspNetUser.UserName }).Select(y => new { orderID = y.Key.OrderID, orderDate = y.Key.OrderDate, orderUser = y.Key.UserName, orderUserID = y.Key.Id, orderNameofUser = y.Key.OrderNameofUser, orderAddress = y.Key.OrderAddress, orderPhoneNumber = y.Key.OrderPhoneNumber, orderItemIDs = y.Select(z => new { orderItemID = z.OrderItemID, orderItemState = z.OrderState, orderItemQuantity = z.Quantity, orderItemPrice = z.FinalPrice, itemID = z.Product.ProductID, productName = z.Product.ProductName, productImage = z.Product.ProductImage, shopName = entities.UserInfos.FirstOrDefault(c => c.UserID == z.ShopID).Name, shopPhoneNumber = entities.UserInfos.FirstOrDefault(c => c.UserID == z.ShopID).PhoneNumber, shopAddress = entities.UserInfos.FirstOrDefault(c => c.UserID == z.ShopID).HomeAddress, shopEmail = entities.UserInfos.FirstOrDefault(c => c.UserID == z.ShopID).Email }).ToList() }).ToList();
+                    return Request.CreateResponse(HttpStatusCode.OK, invoice);
                 }
             }
             catch (Exception ex)
@@ -106,7 +113,7 @@ namespace Webbanhang.Controllers
                 using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
-                    var result = entities.OrderItems.GroupBy(x => new { x.OrderID, x.Order.OrderDate, x.Order.AspNetUser.Id, x.Order.AspNetUser.UserName}).Select(y=>new { orderID = y.Key.OrderID, orderDate = y.Key.OrderDate, orderUser = y.Key.UserName, orderUserID = y.Key.Id , orderItemIDs = y.Select(z=>new {orderItemID = z.OrderItemID, orderItemState = z.OrderState, orderItemPrice = z.FinalPrice, itemID = z.Product.ProductID, productName = z.Product.ProductName, productImage = z.Product.ProductImage}).ToList()}).ToList();
+                    var result = entities.OrderItems.GroupBy(x => new { x.OrderID, x.Order.OrderDate, x.Order.AspNetUser.Id, x.Order.OrderNameofUser, x.Order.OrderPhoneNumber, x.Order.OrderAddress, x.Order.AspNetUser.UserName }).Select(y => new { orderID = y.Key.OrderID, orderDate = y.Key.OrderDate, orderUser = y.Key.UserName, orderUserID = y.Key.Id, orderNameofUser = y.Key.OrderNameofUser, orderAddress = y.Key.OrderAddress, orderPhoneNumber = y.Key.OrderPhoneNumber, orderItemIDs = y.Select(z => new { orderItemID = z.OrderItemID, orderItemState = z.OrderState, orderItemQuantity = z.Quantity, orderItemPrice = z.FinalPrice, itemID = z.Product.ProductID, productName = z.Product.ProductName, productImage = z.Product.ProductImage }).ToList() }).ToList();
                     return Request.CreateResponse(HttpStatusCode.OK, result);
                 }
             }
@@ -126,7 +133,7 @@ namespace Webbanhang.Controllers
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
                     string uid = User.Identity.GetUserId();
-                    var result = entities.OrderItems.Where(x=>x.Order.UserID == uid).GroupBy(x => new { x.OrderID, x.Order.OrderDate, x.Order.AspNetUser.Id, x.Order.AspNetUser.UserName }).Select(y => new { orderID = y.Key.OrderID, orderDate = y.Key.OrderDate, orderUser = y.Key.UserName, orderUserID = y.Key.Id, orderItemIDs = y.Select(z => new { orderItemID = z.OrderItemID, orderItemState = z.OrderState, orderItemPrice = z.FinalPrice, itemID = z.Product.ProductID, productName = z.Product.ProductName, productImage = z.Product.ProductImage }).ToList() }).ToList();
+                    var result = entities.OrderItems.Where(x=>x.Order.UserID == uid).GroupBy(x => new { x.OrderID, x.Order.OrderDate, x.Order.AspNetUser.Id, x.Order.OrderNameofUser, x.Order.OrderPhoneNumber, x.Order.OrderAddress, x.Order.AspNetUser.UserName }).Select(y => new { orderID = y.Key.OrderID, orderDate = y.Key.OrderDate, orderUser = y.Key.UserName, orderUserID = y.Key.Id, orderNameofUser = y.Key.OrderNameofUser, orderAddress = y.Key.OrderAddress, orderPhoneNumber = y.Key.OrderPhoneNumber, orderItemIDs = y.Select(z => new { orderItemID = z.OrderItemID, orderItemState = z.OrderState, orderItemQuantity = z.Quantity, orderItemPrice = z.FinalPrice, itemID = z.Product.ProductID, productName = z.Product.ProductName, productImage = z.Product.ProductImage }).ToList() }).ToList();
                     return Request.CreateResponse(HttpStatusCode.OK, result);
                 }
             }
@@ -146,7 +153,7 @@ namespace Webbanhang.Controllers
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
                     string uid = User.Identity.GetUserId();
-                    var result = entities.OrderItems.Where(x => x.Product.UserID == uid).GroupBy(x => new { x.OrderID, x.Order.OrderDate, x.Order.AspNetUser.Id, x.Order.AspNetUser.UserName }).Select(y => new { orderID = y.Key.OrderID, orderDate = y.Key.OrderDate, orderUser = y.Key.UserName, orderUserID = y.Key.Id, orderItemIDs = y.Select(z => new { orderItemID = z.OrderItemID, orderItemState = z.OrderState, orderItemPrice = z.FinalPrice, itemID = z.Product.ProductID, productName = z.Product.ProductName, productImage = z.Product.ProductImage }).ToList() }).ToList();
+                    var result = entities.OrderItems.Where(x => x.Product.UserID == uid).GroupBy(x => new { x.OrderID, x.Order.OrderDate, x.Order.AspNetUser.Id, x.Order.OrderNameofUser, x.Order.OrderPhoneNumber, x.Order.OrderAddress, x.Order.AspNetUser.UserName }).Select(y => new { orderID = y.Key.OrderID, orderDate = y.Key.OrderDate, orderUser = y.Key.UserName, orderUserID = y.Key.Id, orderNameofUser = y.Key.OrderNameofUser, orderAddress = y.Key.OrderAddress, orderPhoneNumber = y.Key.OrderPhoneNumber, orderItemIDs = y.Select(z => new { orderItemID = z.OrderItemID, orderItemState = z.OrderState, orderItemQuantity = z.Quantity, orderItemPrice = z.FinalPrice, itemID = z.Product.ProductID, productName = z.Product.ProductName, productImage = z.Product.ProductImage }).ToList() }).ToList();
                     return Request.CreateResponse(HttpStatusCode.OK, result);
                 }
             }
@@ -165,7 +172,7 @@ namespace Webbanhang.Controllers
                 using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
-                    var result = entities.OrderItems.Where(x => x.OrderState == stateToLoad).GroupBy(x => new { x.OrderID, x.Order.OrderDate, x.Order.AspNetUser.Id, x.Order.AspNetUser.UserName }).Select(y => new { orderID = y.Key.OrderID, orderDate = y.Key.OrderDate, orderUser = y.Key.UserName, orderUserID = y.Key.Id, orderItemIDs = y.Select(z => new { orderItemID = z.OrderItemID, orderItemState = z.OrderState, orderItemPrice = z.FinalPrice, itemID = z.Product.ProductID, productName = z.Product.ProductName, productImage = z.Product.ProductImage }).ToList() }).ToList();
+                    var result = entities.OrderItems.Where(x => x.OrderState == stateToLoad).GroupBy(x => new { x.OrderID, x.Order.OrderDate, x.Order.AspNetUser.Id, x.Order.OrderNameofUser, x.Order.OrderPhoneNumber, x.Order.OrderAddress, x.Order.AspNetUser.UserName }).Select(y => new { orderID = y.Key.OrderID, orderDate = y.Key.OrderDate, orderUser = y.Key.UserName, orderUserID = y.Key.Id, orderNameofUser = y.Key.OrderNameofUser, orderAddress = y.Key.OrderAddress, orderPhoneNumber = y.Key.OrderPhoneNumber, orderItemIDs = y.Select(z => new { orderItemID = z.OrderItemID, orderItemState = z.OrderState, orderItemQuantity = z.Quantity, orderItemPrice = z.FinalPrice, itemID = z.Product.ProductID, productName = z.Product.ProductName, productImage = z.Product.ProductImage }).ToList() }).ToList();
                     return Request.CreateResponse(HttpStatusCode.OK, result);
                 }
             }
@@ -185,7 +192,7 @@ namespace Webbanhang.Controllers
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
                     string uid = User.Identity.GetUserId();
-                    var result = entities.OrderItems.Where(x => x.OrderState == stateToLoad && x.Order.UserID == uid).GroupBy(x => new { x.OrderID, x.Order.OrderDate, x.Order.AspNetUser.Id, x.Order.AspNetUser.UserName }).Select(y => new { orderID = y.Key.OrderID, orderDate = y.Key.OrderDate, orderUser = y.Key.UserName, orderUserID = y.Key.Id, orderItemIDs = y.Select(z => new { orderItemID = z.OrderItemID, orderItemState = z.OrderState, orderItemPrice = z.FinalPrice, itemID = z.Product.ProductID, productName = z.Product.ProductName, productImage = z.Product.ProductImage }).ToList() }).ToList();
+                    var result = entities.OrderItems.Where(x => x.OrderState == stateToLoad && x.Order.UserID == uid).GroupBy(x => new { x.OrderID, x.Order.OrderDate, x.Order.AspNetUser.Id, x.Order.OrderNameofUser, x.Order.OrderPhoneNumber, x.Order.OrderAddress, x.Order.AspNetUser.UserName }).Select(y => new { orderID = y.Key.OrderID, orderDate = y.Key.OrderDate, orderUser = y.Key.UserName, orderUserID = y.Key.Id, orderNameofUser = y.Key.OrderNameofUser, orderAddress = y.Key.OrderAddress, orderPhoneNumber = y.Key.OrderPhoneNumber, orderItemIDs = y.Select(z => new { orderItemID = z.OrderItemID, orderItemState = z.OrderState, orderItemQuantity = z.Quantity, orderItemPrice = z.FinalPrice, itemID = z.Product.ProductID, productName = z.Product.ProductName, productImage = z.Product.ProductImage }).ToList() }).ToList();
                     return Request.CreateResponse(HttpStatusCode.OK, result);
                 }
             }
@@ -205,7 +212,7 @@ namespace Webbanhang.Controllers
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
                     string uid = User.Identity.GetUserId();
-                    var result = entities.OrderItems.Where(x => x.OrderState == stateToLoad && x.Product.UserID == uid).GroupBy(x => new { x.OrderID, x.Order.OrderDate, x.Order.AspNetUser.Id, x.Order.AspNetUser.UserName }).Select(y => new { orderID = y.Key.OrderID, orderDate = y.Key.OrderDate, orderUser = y.Key.UserName, orderUserID = y.Key.Id, orderItemIDs = y.Select(z => new { orderItemID = z.OrderItemID, orderItemState = z.OrderState, orderItemPrice = z.FinalPrice, itemID = z.Product.ProductID, productName = z.Product.ProductName, productImage = z.Product.ProductImage }).ToList() }).ToList();
+                    var result = entities.OrderItems.Where(x => x.OrderState == stateToLoad && x.Product.UserID == uid).GroupBy(x => new { x.OrderID, x.Order.OrderDate, x.Order.AspNetUser.Id, x.Order.OrderNameofUser, x.Order.OrderPhoneNumber, x.Order.OrderAddress, x.Order.AspNetUser.UserName }).Select(y => new { orderID = y.Key.OrderID, orderDate = y.Key.OrderDate, orderUser = y.Key.UserName, orderUserID = y.Key.Id, orderNameofUser = y.Key.OrderNameofUser, orderAddress = y.Key.OrderAddress, orderPhoneNumber = y.Key.OrderPhoneNumber, orderItemIDs = y.Select(z => new { orderItemID = z.OrderItemID, orderItemState = z.OrderState, orderItemQuantity = z.Quantity, orderItemPrice = z.FinalPrice, itemID = z.Product.ProductID, productName = z.Product.ProductName, productImage = z.Product.ProductImage }).ToList() }).ToList();
                     return Request.CreateResponse(HttpStatusCode.OK, result);
                 }
             }
@@ -224,7 +231,7 @@ namespace Webbanhang.Controllers
                 using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
-                    var listOrders = entities.OrderItems.GroupBy(x => new { x.OrderID, x.Order.OrderDate, x.Order.AspNetUser.Id, x.Order.AspNetUser.UserName }).Select(y => new { orderID = y.Key.OrderID, orderDate = y.Key.OrderDate, orderUser = y.Key.UserName, orderUserID = y.Key.Id, orderItemIDs = y.Select(z => new { orderItemID = z.OrderItemID, orderItemState = z.OrderState, orderItemPrice = z.FinalPrice, itemID = z.Product.ProductID, productName = z.Product.ProductName, productImage = z.Product.ProductImage }).ToList() }).ToList();
+                    var listOrders = entities.OrderItems.GroupBy(x => new { x.OrderID, x.Order.OrderDate, x.Order.AspNetUser.Id, x.Order.OrderNameofUser, x.Order.OrderPhoneNumber, x.Order.OrderAddress, x.Order.AspNetUser.UserName }).Select(y => new { orderID = y.Key.OrderID, orderDate = y.Key.OrderDate, orderUser = y.Key.UserName, orderUserID = y.Key.Id, orderNameofUser = y.Key.OrderNameofUser, orderAddress = y.Key.OrderAddress, orderPhoneNumber = y.Key.OrderPhoneNumber, orderItemIDs = y.Select(z => new { orderItemID = z.OrderItemID, orderItemState = z.OrderState, orderItemQuantity = z.Quantity, orderItemPrice = z.FinalPrice, itemID = z.Product.ProductID, productName = z.Product.ProductName, productImage = z.Product.ProductImage }).ToList() }).ToList();
                     var result = listOrders.ToList();
                     foreach (var i in listOrders)
                     {
@@ -256,7 +263,7 @@ namespace Webbanhang.Controllers
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
                     string uid = User.Identity.GetUserId();
-                    var listOrders = entities.OrderItems.Where(x => x.Order.UserID == uid).GroupBy(x => new { x.OrderID, x.Order.OrderDate, x.Order.AspNetUser.Id, x.Order.AspNetUser.UserName }).Select(y => new { orderID = y.Key.OrderID, orderDate = y.Key.OrderDate, orderUser = y.Key.UserName, orderUserID = y.Key.Id, orderItemIDs = y.Select(z => new { orderItemID = z.OrderItemID, orderItemState = z.OrderState, orderItemPrice = z.FinalPrice, itemID = z.Product.ProductID, productName = z.Product.ProductName, productImage = z.Product.ProductImage }).ToList() }).ToList();
+                    var listOrders = entities.OrderItems.Where(x => x.Order.UserID == uid).GroupBy(x => new { x.OrderID, x.Order.OrderDate, x.Order.AspNetUser.Id, x.Order.OrderNameofUser, x.Order.OrderPhoneNumber, x.Order.OrderAddress, x.Order.AspNetUser.UserName }).Select(y => new { orderID = y.Key.OrderID, orderDate = y.Key.OrderDate, orderUser = y.Key.UserName, orderUserID = y.Key.Id, orderNameofUser = y.Key.OrderNameofUser, orderAddress = y.Key.OrderAddress, orderPhoneNumber = y.Key.OrderPhoneNumber, orderItemIDs = y.Select(z => new { orderItemID = z.OrderItemID, orderItemState = z.OrderState, orderItemQuantity = z.Quantity, orderItemPrice = z.FinalPrice, itemID = z.Product.ProductID, productName = z.Product.ProductName, productImage = z.Product.ProductImage }).ToList() }).ToList();
                     var result = listOrders.ToList();
                     foreach (var i in listOrders)
                     {
@@ -288,13 +295,13 @@ namespace Webbanhang.Controllers
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
                     string uid = User.Identity.GetUserId();
-                    var listOrders = entities.OrderItems.Where(x => x.Product.UserID == uid).GroupBy(x => new { x.OrderID, x.Order.OrderDate, x.Order.AspNetUser.Id, x.Order.AspNetUser.UserName }).Select(y => new { orderID = y.Key.OrderID, orderDate = y.Key.OrderDate, orderUser = y.Key.UserName, orderUserID = y.Key.Id, orderItemIDs = y.Select(z => new { orderItemID = z.OrderItemID, orderItemState = z.OrderState, orderItemPrice = z.FinalPrice, itemID = z.Product.ProductID, productName = z.Product.ProductName, productImage = z.Product.ProductImage }).ToList() }).ToList();
+                    var listOrders = entities.OrderItems.Where(x => x.Product.UserID == uid).GroupBy(x => new { x.OrderID, x.Order.OrderDate, x.Order.AspNetUser.Id, x.Order.OrderNameofUser, x.Order.OrderPhoneNumber, x.Order.OrderAddress, x.Order.AspNetUser.UserName }).Select(y => new { orderID = y.Key.OrderID, orderDate = y.Key.OrderDate, orderUser = y.Key.UserName, orderUserID = y.Key.Id, orderNameofUser = y.Key.OrderNameofUser, orderAddress = y.Key.OrderAddress, orderPhoneNumber = y.Key.OrderPhoneNumber, orderItemIDs = y.Select(z => new { orderItemID = z.OrderItemID, orderItemState = z.OrderState, orderItemQuantity = z.Quantity, orderItemPrice = z.FinalPrice, itemID = z.Product.ProductID, productName = z.Product.ProductName, productImage = z.Product.ProductImage }).ToList() }).ToList();
                     var result = listOrders.ToList();
                     foreach (var i in listOrders)
                     {
                         foreach (var j in i.orderItemIDs)
                         {
-                            if (j.orderItemState != "Done")
+                            if (j.orderItemState == "Waiting" || j.orderItemState == "Shipping")
                             {
                                 result.Remove(i);
                                 break;

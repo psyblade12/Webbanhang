@@ -17,6 +17,7 @@ using Webbanhang.Models;
 using Webbanhang.Providers;
 using Webbanhang.Results;
 using System.Net;
+using System.Linq;
 
 namespace Webbanhang.Controllers
 {
@@ -36,10 +37,16 @@ namespace Webbanhang.Controllers
         }
 
         // GET api/values/5
-        public string Get(int id)
+        public HttpResponseMessage Get(int id)
         {
-            
-            return "value";
+
+            using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+            {
+                entities.Configuration.ProxyCreationEnabled = false;
+                int lastIDofOrder = entities.Orders.Max(x => x.OrderID);
+                var invoice = entities.OrderItems.Where(x => x.OrderID == lastIDofOrder).GroupBy(x => new { x.OrderID, x.Order.OrderDate, x.Order.AspNetUser.Id, x.Order.OrderNameofUser, x.Order.OrderPhoneNumber, x.Order.OrderAddress, x.Order.AspNetUser.UserName }).Select(y => new { orderID = y.Key.OrderID, orderDate = y.Key.OrderDate, orderUser = y.Key.UserName, orderUserID = y.Key.Id, orderNameofUser = y.Key.OrderNameofUser, orderAddress = y.Key.OrderAddress, orderPhoneNumber = y.Key.OrderPhoneNumber, orderItemIDs = y.Select(z => new { orderItemID = z.OrderItemID, orderItemState = z.OrderState, orderItemQuantity = z.Quantity, orderItemPrice = z.FinalPrice, itemID = z.Product.ProductID, productName = z.Product.ProductName, productImage = z.Product.ProductImage, shopName = entities.UserInfos.FirstOrDefault(c => c.UserID == z.ShopID).Name, shopPhoneNumber = entities.UserInfos.FirstOrDefault(c => c.UserID == z.ShopID).PhoneNumber, shopAddress = entities.UserInfos.FirstOrDefault(c => c.UserID == z.ShopID).HomeAddress, shopEmail = entities.UserInfos.FirstOrDefault(c => c.UserID == z.ShopID).Email }).ToList() }).ToList();
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
         }
 
         // POST api/values

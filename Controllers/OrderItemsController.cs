@@ -86,7 +86,9 @@ namespace Webbanhang.Controllers
                     entities.Configuration.ProxyCreationEnabled = false;
                     string currentUserID = User.Identity.GetUserId();
 
-                    var result = entities.OrderItems.Include("Product").Where(x => x.OrderItemID == oid).FirstOrDefault();
+                    var result = entities.OrderItems.Include("Order").Include("Product").Where(x => x.OrderItemID == oid).FirstOrDefault();
+                    string emailtoSend = entities.AspNetUsers.FirstOrDefault(x => x.Id == result.Order.UserID).Email;
+
                     if (result != null)
                     {
                         if (result.Product.UserID == currentUserID)
@@ -103,7 +105,7 @@ namespace Webbanhang.Controllers
                             client.DeliveryMethod = SmtpDeliveryMethod.Network;
                             client.UseDefaultCredentials = false;
                             client.Credentials = new System.Net.NetworkCredential("psybladebackup@gmail.com", "hoahoa123");
-                            MailMessage mm = new MailMessage("psybladebackup@gmail.com", User.Identity.Name, "Tình trạng đơn hàng", "Sản phẩm có mã đặt hàng là: #" + result.OrderItemID +" đang được vận chuyển.");
+                            MailMessage mm = new MailMessage("psybladebackup@gmail.com", emailtoSend, "Tình trạng đơn hàng", "Sản phẩm có mã đặt hàng là: #" + result.OrderItemID +" đang được vận chuyển.");
                             mm.BodyEncoding = UTF8Encoding.UTF8;
                             mm.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
                             client.Send(mm);
@@ -139,8 +141,8 @@ namespace Webbanhang.Controllers
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
                     string currentUserID = User.Identity.GetUserId();
-
-                    var result = entities.OrderItems.Include("Product").Where(x => x.OrderItemID == oid).FirstOrDefault();
+                    var result = entities.OrderItems.Include("Order").Include("Product").Where(x => x.OrderItemID == oid).FirstOrDefault();
+                    string emailtoSend = entities.AspNetUsers.FirstOrDefault(x => x.Id == result.Order.UserID).Email;
                     if (result != null)
                     {
                         if (result.Product.UserID == currentUserID)
@@ -157,7 +159,7 @@ namespace Webbanhang.Controllers
                             client.DeliveryMethod = SmtpDeliveryMethod.Network;
                             client.UseDefaultCredentials = false;
                             client.Credentials = new System.Net.NetworkCredential("psybladebackup@gmail.com", "hoahoa123");
-                            MailMessage mm = new MailMessage("psybladebackup@gmail.com", User.Identity.Name, "Tình trạng đơn hàng", "Sản phẩm có mã đặt hàng là: #" + result.OrderItemID + " đã được vận chuyển thành công.");
+                            MailMessage mm = new MailMessage("psybladebackup@gmail.com", emailtoSend, "Tình trạng đơn hàng", "Sản phẩm có mã đặt hàng là: #" + result.OrderItemID + " đã được vận chuyển thành công.");
                             mm.BodyEncoding = UTF8Encoding.UTF8;
                             mm.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
                             client.Send(mm);
@@ -209,7 +211,7 @@ namespace Webbanhang.Controllers
                                 producttoIncreaseBack.Stock = producttoIncreaseBack.Stock + result.Quantity;
                                 entities.SaveChanges();
 
-                                //Gửi Email thông báo đã mua hàng
+                                //Gửi Email thông báo đã hủy cho khách hàng
                                 SmtpClient client = new SmtpClient();
                                 client.Port = 587;
                                 client.Host = "smtp.gmail.com";
@@ -222,6 +224,22 @@ namespace Webbanhang.Controllers
                                 mm.BodyEncoding = UTF8Encoding.UTF8;
                                 mm.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
                                 client.Send(mm);
+
+                                //Hết phần gửi email.
+                                //Gửi Email thông báo đã hủy cho người bán
+                                string emailtoSend = entities.AspNetUsers.FirstOrDefault(x => x.Id == result.Product.UserID).Email;
+                                SmtpClient client2 = new SmtpClient();
+                                client2.Port = 587;
+                                client2.Host = "smtp.gmail.com";
+                                client2.EnableSsl = true;
+                                client2.Timeout = 10000;
+                                client2.DeliveryMethod = SmtpDeliveryMethod.Network;
+                                client2.UseDefaultCredentials = false;
+                                client2.Credentials = new System.Net.NetworkCredential("psybladebackup@gmail.com", "hoahoa123");
+                                MailMessage mm2 = new MailMessage("psybladebackup@gmail.com", emailtoSend, "Thông báo khách hàng hủy đơn hàng", "Sản phẩm có mã đặt hàng là: #" + result.OrderItemID + " đã bị hủy.");
+                                mm2.BodyEncoding = UTF8Encoding.UTF8;
+                                mm2.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
+                                client2.Send(mm2);
                                 //Hết phần gửi email.
 
                                 return Request.CreateResponse(HttpStatusCode.OK, "Đã chuyển sang 'Cancel'");
