@@ -37,7 +37,7 @@ namespace Webbanhang.Controllers
                 using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
-                    var result = entities.SponsoredItems.Where(x => x.EndDate > DateTime.Now).ToList();
+                    var result = entities.SponsoredItems.Where(x => x.EndDate > DateTime.Now).Select(y=>new {y.SponsoredItemID, y.StartDate, y.EndDate, y.ProductID, y.Product.ProductName, y.Product.Price, y.Product.ProductImage, y.Product.ProductType.ProductTypeName, y.Product.Brand.BrandName}).ToList();
                     return Request.CreateResponse(HttpStatusCode.OK, result);
                 }
             }
