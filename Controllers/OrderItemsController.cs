@@ -264,6 +264,65 @@ namespace Webbanhang.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("api/OrderItems/Analysis")]
+        public HttpResponseMessage Analysis(string month = null, string year = null, string shopid =null, string userid = null, string productid = null)
+        {
+            try
+            {
+                using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+                {
+                    string uid = User.Identity.GetUserId();
+                    //var list = entities.OrderItems.Where(x=>x.Order.UserID == uid).ToList();
+                    var list = entities.OrderItems.ToList();
+                    if (year != null)
+                    {
+                        int temp = Convert.ToInt32(year);
+                        list = list.Where(x => x.Order.OrderDate.Value.Year == temp).ToList();
+                    }
+                    if (month != null)
+                    {
+                        int temp = Convert.ToInt32(month);
+                        list = list.Where(x => x.Order.OrderDate.Value.Month == temp).ToList();
+                    }
+
+                    if (shopid != null)
+                    {
+                        string temp = shopid;
+                        list = list.Where(x => x.ShopID == temp).ToList();
+                    }
+
+                    if (userid != null)
+                    {
+                        string temp = userid;
+                        list = list.Where(x => x.Order.UserID == temp).ToList();
+                    }
+
+                    if (productid != null)
+                    {
+                        int temp = Convert.ToInt32(productid);
+                        list = list.Where(x => x.ProductID == temp).ToList();
+                    }
+
+                    //TÍnh doanh thu
+                    int turnOver = list.Where(x=>x.OrderState=="Done").Sum(x => x.FinalPrice);
+                    int soldItemNumber = list.Where(x => x.OrderState == "Done").Sum(x => x.Quantity);
+                    var detailSoldItem = list.Where(x => x.OrderState == "Done").GroupBy(x => new { x.ProductID, x.Product.ProductName, x.Product.ProductImage }).Select(g=>new { g.Key.ProductID, g.Key.ProductName, g.Key.ProductImage, SumQuantity = g.Sum(x=>x.Quantity), sumPrice = g.Sum(x=>x.FinalPrice)}).ToList();
+                    var detailShop = list.Where(x => x.OrderState == "Done").GroupBy(x => new { x.ShopID, x.AspNetUser.UserName }).Select(g => new { g.Key.ShopID, g.Key.UserName, SumQuantity = g.Sum(x => x.Quantity), sumPrice = g.Sum(x => x.FinalPrice) }).ToList();
+                    var detailUser = list.Where(x => x.OrderState == "Done").GroupBy(x => new { x.Order.UserID, x.Order.AspNetUser.UserName }).Select(g => new { g.Key.UserID, g.Key.UserName, SumQuantity = g.Sum(x => x.Quantity), sumPrice = g.Sum(x => x.FinalPrice) }).ToList();
+                    var detailRating = entities.Ratings.GroupBy(x => new { x.Product.UserID, x.Product.AspNetUser.UserName }).Select(g => new { g.Key.UserID, g.Key.UserName, AverageRating = g.Average(x => x.Rating1), RatingTime = g.Count() }).ToList();
+
+                    var result = new { turnover = turnOver, solditemnumber = soldItemNumber, detailsolditem = detailSoldItem, detailshop = detailShop, detailuser = detailUser, detailrating = detailRating };
+
+                    return Request.CreateResponse(HttpStatusCode.OK, result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
         // api/orderitems
         [HttpPost]
         [Authorize]

@@ -37,52 +37,60 @@ namespace Webbanhang.Controllers
 
         [HttpGet]
         [Route("api/Products/SearchProduct")]
-        public HttpResponseMessage SearchProductByType([FromUri] string userid, string name, string productTypeid, string brandId, string priceMin, string priceMax)
+        public HttpResponseMessage SearchProductByType([FromUri] string userid = null, string name = null, string productTypeid = null, string brandId = null, string priceMin = null, string priceMax = null)
         {
             using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
             {
                 entities.Configuration.ProxyCreationEnabled = false;
                 var entity = entities.Products.ToList();
 
-                if (userid != "null")
+                if (userid != null)
                 {
                     entity = entity.Where(x => x.UserID == userid).ToList();
                 }
-                if (name != "null")
+                if (name != null)
                 {
                     entity = entity.Where(x => x.ProductName.Contains(name)).ToList();
                 }
 
-                if (productTypeid != "null")
+                if (productTypeid != null)
                 {
                     entity = entity.Where(x => x.ProductTypeID == Convert.ToInt32(productTypeid)).ToList();
                 }
 
-                if (brandId != "null")
+                if (brandId != null)
                 {
                     entity = entity.Where(x => x.BrandID== Convert.ToInt32(brandId)).ToList();
                 }
 
-                if (priceMin != "null" && priceMax !="null")
+                if (priceMin != null)
                 {
-                    entity = entity.Where(x => x.Price <= Convert.ToInt32(priceMax) && x.Price >= Convert.ToInt32(priceMin)).ToList();
+                    entity = entity.Where(x => x.Price >= Convert.ToInt32(priceMin)).ToList();
                 }
+
+                if(priceMax !=null)
+                {
+                    entity = entity.Where(x => x.Price <= Convert.ToInt32(priceMax)).ToList();
+                }
+
                 return Request.CreateResponse(HttpStatusCode.OK, entity);
             }
         }
 
         [HttpGet]
-        public HttpResponseMessage LoadAllProduct()
+        public HttpResponseMessage LoadAllProduct(string sort=null)
         {
             try
             {
                 using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
-                    //var b = entities.Products.Include("brands").Select(x => new { brandName = x.Brand.BrandName, productID = x.ProductID, productName = x.ProductName}).ToList();
-                    var a = Request.CreateResponse(HttpStatusCode.OK, entities.Products.ToList());
-                    //var a = Request.CreateResponse(HttpStatusCode.OK, b.ToList());
-                    return a;
+                    var result = entities.Products.ToList();
+                    if (sort == "dsc")
+                    {
+                        result.Reverse();
+                    }
+                    return Request.CreateResponse(HttpStatusCode.OK, result);
                 }
             }
             catch (Exception ex)

@@ -29,7 +29,7 @@ namespace Webbanhang.Controllers
         }
 
         [HttpGet]
-        [Route("api/Products/LoadAllSponsoredItemsInTime")]
+        [Route("api/SponsoredItems/LoadAllSponsoredItemsInTime")]
         public HttpResponseMessage LoadAllSponsoredItemsInTime()
         {
             try
@@ -37,7 +37,12 @@ namespace Webbanhang.Controllers
                 using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
-                    var result = entities.SponsoredItems.Where(x => x.EndDate > DateTime.Now).Select(y=>new {y.SponsoredItemID, y.StartDate, y.EndDate, y.ProductID, y.Product.ProductName, y.Product.Price, y.Product.ProductImage, y.Product.ProductType.ProductTypeName, y.Product.Brand.BrandName}).ToList();
+                    var result = entities.SponsoredItems.Where(x => x.EndDate > DateTime.Now).Select(y=>new {
+                        sponsoredItemID = y.SponsoredItemID,
+                        startDate = y.StartDate,
+                        endDate = y.EndDate,
+                        product = entities.Products.FirstOrDefault(z => y.ProductID == z.ProductID)
+                    }).ToList();
                     return Request.CreateResponse(HttpStatusCode.OK, result);
                 }
             }
@@ -58,7 +63,7 @@ namespace Webbanhang.Controllers
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
                     string currentUserID = User.Identity.GetUserId();
-                    var result = entities.SponsoredItems.Where(x => x.Product.UserID == currentUserID).Select( x=>  new { sponsoredItemID = x.SponsoredItemID, productName = x.Product.ProductName, startDate = x.StartDate, endDate = x.EndDate}).ToList();
+                    var result = entities.SponsoredItems.Where(x => x.Product.UserID == currentUserID).Select(x => new { sponsoredItemID = x.SponsoredItemID, productName = x.Product.ProductName, startDate = x.StartDate, endDate = x.EndDate }).ToList();
                     return Request.CreateResponse(HttpStatusCode.OK, result);
                 }
             }

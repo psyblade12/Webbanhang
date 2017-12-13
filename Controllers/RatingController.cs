@@ -170,7 +170,41 @@ namespace Webbanhang.Controllers
                 return Request.CreateErrorResponse(HttpStatusCode.BadGateway, "Có lỗi xảy ra");
             }
         }
+        [HttpGet]
+        [Route("api/Rating/GetAverageRating")]
+        [AllowAnonymous]
+        public HttpResponseMessage GetAverageRating([FromUri]string userid = null, string productid =null)
+        {
+            try
+            {
+                using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+                {
+                    if (userid != null)
+                    {
+                        var result = entities.Ratings.Where(x => x.Product.UserID == userid).Average(x => x.Rating1);
+                        return Request.CreateResponse(HttpStatusCode.OK, result);
+                    }
+                    
+                    if (productid != null)
+                    {
+                        int pid = Convert.ToInt32(productid);
+                        var find = entities.Products.FirstOrDefault(x => x.ProductID == pid);
+                        if (find != null)
+                        {
+                            string uid = find.UserID;
+                            var result = entities.Ratings.Where(x => x.Product.UserID == uid).Average(x => x.Rating1);
+                            return Request.CreateResponse(HttpStatusCode.OK, result);
+                        }
+                    }
 
+                    return Request.CreateResponse(HttpStatusCode.OK);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
 
         // api/product/1
         [HttpGet]
