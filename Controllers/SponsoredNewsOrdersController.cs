@@ -12,14 +12,29 @@ namespace Webbanhang.Controllers
     public class SponsoredNewsOrdersController : ApiController
     {
         [HttpGet]
-        public HttpResponseMessage LoadAllNewsOrders()
+        //Nếu truyền vào thêm month và year thì sẽ lọc ra tất các hóa đơn có trong thời gian đó
+        public HttpResponseMessage LoadAllNewsOrders(string month = null, string year =null)
         {
             try
             {
                 using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
-                    return Request.CreateResponse(HttpStatusCode.OK, entities.SponsoredNewsOrders.ToList());
+                    var returnlist = entities.SponsoredNewsOrders.ToList();
+
+                    if (month != null )
+                    {
+                        int tempMoth = Convert.ToInt32(month);
+                        returnlist = returnlist.Where(x => x.SponsoredNewsOrderDate.Value.Month == tempMoth).ToList();
+                    }
+
+                    if (year != null)
+                    {
+                        int tempYear = Convert.ToInt32(year);
+                        returnlist = returnlist.Where(x => x.SponsoredNewsOrderDate.Value.Year == tempYear).ToList();
+                    }
+
+                    return Request.CreateResponse(HttpStatusCode.OK, returnlist);
                 }
             }
             catch (Exception ex)

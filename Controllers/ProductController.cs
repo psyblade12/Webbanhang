@@ -9,6 +9,7 @@ using System.Web;
 using System.Web.Http;
 using System.Net.Mail;
 using System.Text;
+using Webbanhang.Models;
 
 namespace Webbanhang.Controllers
 {
@@ -188,16 +189,48 @@ namespace Webbanhang.Controllers
         // api/product
         [HttpPost]
         [Authorize]
-        public HttpResponseMessage Post([FromBody] Product product)
+        public HttpResponseMessage Post([FromBody] ProductModel product)
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
+                }
+
+                //Kiểm tra giá cũ có lớn hơn giá mới không
+                if (product.Price > product.OldPrice)
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Giá cũ phải cao hơn giá mới");
+                }
+
                 using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
                 {
+                    entities.Configuration.ProxyCreationEnabled = false;
                     product.CreationDate = DateTime.Now;
                     product.UserID = User.Identity.GetUserId();
-                    entities.Configuration.ProxyCreationEnabled = false;
-                    entities.Products.Add(product);
+
+                    //Kiểm tra xem có đang bị ban hay không
+                    string currentUserID = User.Identity.GetUserId();
+                    var list = entities.BanAccounts.Where(x => x.UserID == currentUserID && x.LiftDate > DateTime.Now).ToList();
+                    if (list.Count != 0)
+                    {
+                        return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Bạn đang bị ban");
+                    }
+                    //Hết kiểm tra bị ban
+
+                    Product newproduct = new Product();
+                    newproduct.UserID = product.UserID;
+                    newproduct.ProductTypeID = product.ProductTypeID;
+                    newproduct.BrandID = product.BrandID;
+                    newproduct.ProductName = product.ProductName;
+                    newproduct.Detail = product.Detail;
+                    newproduct.Stock = product.Stock;
+                    newproduct.ProductImage = product.ProductImage;
+                    newproduct.Price = product.Price;
+                    newproduct.OldPrice = product.OldPrice;
+
+                    entities.Products.Add(newproduct);
                     entities.SaveChanges();
                     return Request.CreateResponse(HttpStatusCode.OK, "POST OK");
                 }
@@ -211,10 +244,21 @@ namespace Webbanhang.Controllers
         // api/product/1
         [HttpPut]
         [Authorize]
-        public HttpResponseMessage Put(int id, [FromBody]Product product)
+        public HttpResponseMessage Put(int id, [FromBody]ProductModel product)
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
+                }
+
+                //Kiểm tra giá phải nhỏ hơn giá cũ
+                if (product.Price > product.OldPrice)
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Giá cũ phải cao hơn giá mới");
+                }
+
                 using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
                 {
                     entities.Configuration.ProxyCreationEnabled = false;

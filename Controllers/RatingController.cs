@@ -61,6 +61,13 @@ namespace Webbanhang.Controllers
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
                     string currentUserID = User.Identity.GetUserId();
+
+                    //Kiểm tra r (điểm) phải >0 và < 10
+                    if(r<0 || r>10)
+                    {
+                        return Request.CreateErrorResponse(HttpStatusCode.BadGateway, "Phải rate từ 0-> 10");
+                    }
+
                     var checkIfRated = entities.Ratings.FirstOrDefault(x => x.ProductID == pid && x.UserID == currentUserID);
                     if(checkIfRated != null)
                     {

@@ -273,7 +273,18 @@ namespace Webbanhang.Controllers
                 using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
                 {
                     string uid = User.Identity.GetUserId();
-                    //var list = entities.OrderItems.Where(x=>x.Order.UserID == uid).ToList();
+
+                    //Nếu mà không phải admin thì chỉ được xem thông số liên quan đến mình.
+
+                    if (User.IsInRole("Merchant") == true)
+                    {
+                        shopid = uid;
+                    }
+                    else if (User.IsInRole("ActivatedUser") == true)
+                    {
+                        userid = uid;
+                    }
+
                     var list = entities.OrderItems.ToList();
                     if (year != null)
                     {
@@ -291,7 +302,7 @@ namespace Webbanhang.Controllers
                         string temp = shopid;
                         list = list.Where(x => x.ShopID == temp).ToList();
                     }
-
+                    
                     if (userid != null)
                     {
                         string temp = userid;

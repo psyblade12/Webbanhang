@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web;
 using System.Web.Http;
+using Webbanhang.Models;
 
 namespace Webbanhang.Controllers
 {
@@ -19,7 +20,7 @@ namespace Webbanhang.Controllers
             {
                 using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
                 {
-                    //entities.Configuration.ProxyCreationEnabled = false;
+                    entities.Configuration.ProxyCreationEnabled = false;
                     return Request.CreateResponse(HttpStatusCode.OK, entities.UserInfos.ToList());
                 }
             }
@@ -173,10 +174,15 @@ namespace Webbanhang.Controllers
         // api/product/1
         [HttpPut]
         [Authorize]
-        public HttpResponseMessage Put(int id, [FromBody]UserInfo userinfo)
+        public HttpResponseMessage Put(int id, [FromBody]UserinfoModel userinfo)
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
+                }
+
                 using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
@@ -188,15 +194,14 @@ namespace Webbanhang.Controllers
                     }
                     else
                     {
-                        entity.UserID = User.Identity.GetUserId();
                         entity.Name = userinfo.Name;
                         entity.HomeAddress = userinfo.HomeAddress;
                         entity.Email = userinfo.Email;
                         entity.PhoneNumber = userinfo.PhoneNumber;
-                        entity.Cart = userinfo.Cart;
+                        entity.CMND = userinfo.CMND;
                         entities.SaveChanges();
 
-                        return Request.CreateResponse(HttpStatusCode.OK, entity);
+                        return Request.CreateResponse(HttpStatusCode.OK, "Edited");
                     }
                 }
             }
