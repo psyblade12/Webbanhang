@@ -50,6 +50,50 @@ namespace Webbanhang.Controllers
             }
         }
 
+        //Lấy danh sách các thống kê nhà bán hàng có rating trung bình từ cao xuống thấp
+        //Cái này có thể lấy ra từ Analysis, nhưng nếu thấy method Analysis quá phức tạo thì dùng cái này
+        [HttpGet]
+        [Route("api/Rating/GetListOfAverageRatingListByMerchant")]
+        [AllowAnonymous]
+        public HttpResponseMessage GetListOfAverageRatingListByMerchant()
+        {
+            try
+            {
+                using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+                {
+                    entities.Configuration.ProxyCreationEnabled = false;
+                    var detailRatingbyMerchant = entities.Ratings.GroupBy(x => new { x.Product.UserID, x.Product.AspNetUser.UserName }).Select(g => new { g.Key.UserID, g.Key.UserName, AverageRating = g.Average(x => x.Rating1), RatingTime = g.Count() }).OrderByDescending(x => x.AverageRating).ThenByDescending(x => x.RatingTime).ToList();
+                    return Request.CreateResponse(HttpStatusCode.OK, detailRatingbyMerchant);
+                }
+            }
+            catch
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadGateway, "Có lỗi xảy ra");
+            }
+        }
+
+        //Lấy danh sách các thống kê các sản phẩm có rating trung bình từ cao xuống thấp
+        //Cái này có thể lấy ra từ Analysis, nhưng nếu thấy method Analysis quá phức tạo thì dùng cái này
+        [HttpGet]
+        [Route("api/Rating/GetListOfAverageRatingListByProduct")]
+        [AllowAnonymous]
+        public HttpResponseMessage GetListOfAverageRatingListByProduct()
+        {
+            try
+            {
+                using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+                {
+                    entities.Configuration.ProxyCreationEnabled = false;
+                    var detailRatingByItem = entities.Ratings.GroupBy(x => new { x.ProductID, x.Product.ProductName }).Select(g => new { g.Key.ProductID, g.Key.ProductName, AverageRating = g.Average(x => x.Rating1), RatingTime = g.Count() }).OrderByDescending(x => x.AverageRating).ThenByDescending(x => x.RatingTime).ToList();
+                    return Request.CreateResponse(HttpStatusCode.OK, detailRatingByItem);
+                }
+            }
+            catch
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadGateway, "Có lỗi xảy ra");
+            }
+        }
+
         [HttpGet]
         [Route("api/Rating/RateaProduct")]
         [AllowAnonymous]
