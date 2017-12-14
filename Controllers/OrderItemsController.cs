@@ -307,12 +307,13 @@ namespace Webbanhang.Controllers
                     //TÍnh doanh thu
                     int turnOver = list.Where(x=>x.OrderState=="Done").Sum(x => x.FinalPrice);
                     int soldItemNumber = list.Where(x => x.OrderState == "Done").Sum(x => x.Quantity);
-                    var detailSoldItem = list.Where(x => x.OrderState == "Done").GroupBy(x => new { x.ProductID, x.Product.ProductName, x.Product.ProductImage }).Select(g=>new { g.Key.ProductID, g.Key.ProductName, g.Key.ProductImage, SumQuantity = g.Sum(x=>x.Quantity), sumPrice = g.Sum(x=>x.FinalPrice)}).ToList();
-                    var detailShop = list.Where(x => x.OrderState == "Done").GroupBy(x => new { x.ShopID, x.AspNetUser.UserName }).Select(g => new { g.Key.ShopID, g.Key.UserName, SumQuantity = g.Sum(x => x.Quantity), sumPrice = g.Sum(x => x.FinalPrice) }).ToList();
-                    var detailUser = list.Where(x => x.OrderState == "Done").GroupBy(x => new { x.Order.UserID, x.Order.AspNetUser.UserName }).Select(g => new { g.Key.UserID, g.Key.UserName, SumQuantity = g.Sum(x => x.Quantity), sumPrice = g.Sum(x => x.FinalPrice) }).ToList();
-                    var detailRating = entities.Ratings.GroupBy(x => new { x.Product.UserID, x.Product.AspNetUser.UserName }).Select(g => new { g.Key.UserID, g.Key.UserName, AverageRating = g.Average(x => x.Rating1), RatingTime = g.Count() }).ToList();
+                    var detailSoldItem = list.Where(x => x.OrderState == "Done").GroupBy(x => new { x.ProductID, x.Product.ProductName, x.Product.ProductImage }).Select(g=>new { g.Key.ProductID, g.Key.ProductName, g.Key.ProductImage, SumQuantity = g.Sum(x=>x.Quantity), sumPrice = g.Sum(x=>x.FinalPrice)}).OrderByDescending(x=>x.SumQuantity).ThenByDescending(x=>x.sumPrice).ToList();
+                    var detailShop = list.Where(x => x.OrderState == "Done").GroupBy(x => new { x.ShopID, x.AspNetUser.UserName }).Select(g => new { g.Key.ShopID, g.Key.UserName, SumQuantity = g.Sum(x => x.Quantity), sumPrice = g.Sum(x => x.FinalPrice) }).OrderByDescending(x=>x.SumQuantity).ThenByDescending(x=>x.sumPrice).ToList();
+                    var detailUser = list.Where(x => x.OrderState == "Done").GroupBy(x => new { x.Order.UserID, x.Order.AspNetUser.UserName }).Select(g => new { g.Key.UserID, g.Key.UserName, SumQuantity = g.Sum(x => x.Quantity), sumPrice = g.Sum(x => x.FinalPrice) }).OrderByDescending(x=>x.SumQuantity).ThenByDescending(x=>x.sumPrice).ToList();
+                    var detailRating = entities.Ratings.GroupBy(x => new { x.Product.UserID, x.Product.AspNetUser.UserName }).Select(g => new { g.Key.UserID, g.Key.UserName, AverageRating = g.Average(x => x.Rating1), RatingTime = g.Count() }).OrderByDescending(x=>x.AverageRating).ThenByDescending(x=>x.RatingTime).ToList();
+                    var detailRatingByItem = entities.Ratings.GroupBy(x => new { x.ProductID, x.Product.ProductName}).Select(g => new { g.Key.ProductID, g.Key.ProductName, AverageRating = g.Average(x => x.Rating1), RatingTime = g.Count() }).OrderByDescending(x=>x.AverageRating).ThenByDescending(x=>x.RatingTime).ToList();
 
-                    var result = new { turnover = turnOver, solditemnumber = soldItemNumber, detailsolditem = detailSoldItem, detailshop = detailShop, detailuser = detailUser, detailrating = detailRating };
+                    var result = new { turnover = turnOver, solditemnumber = soldItemNumber, detailsolditem = detailSoldItem, detailshop = detailShop, detailuser = detailUser, detailrating = detailRating, detailratingbyitem = detailRatingByItem };
 
                     return Request.CreateResponse(HttpStatusCode.OK, result);
                 }

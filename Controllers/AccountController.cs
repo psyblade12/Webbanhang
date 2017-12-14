@@ -586,7 +586,7 @@ namespace Webbanhang.Controllers
         [Route("AmIActivated")]
         public HttpResponseMessage WhatRoleIsThisUser()
         {
-            return Request.CreateErrorResponse(HttpStatusCode.OK, User.Identity.GetUserId() +", Is activated?: "+ User.IsInRole("ActivatedUser").ToString() + ", Is a Merchant: " + User.IsInRole("Merchant").ToString());
+            return Request.CreateErrorResponse(HttpStatusCode.OK, User.Identity.GetUserId() +", Is activated?: "+ User.IsInRole("ActivatedUser").ToString() + ", Is a Merchant: " + User.IsInRole("Merchant") + ", Is admin: " + User.IsInRole("Admin").ToString());
         }
 
         [AllowAnonymous]
