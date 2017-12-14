@@ -188,7 +188,7 @@ namespace Webbanhang.Controllers
 
         // api/product
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Merchant")]
         public HttpResponseMessage Post([FromBody] ProductModel product)
         {
             try
@@ -229,6 +229,7 @@ namespace Webbanhang.Controllers
                     newproduct.ProductImage = product.ProductImage;
                     newproduct.Price = product.Price;
                     newproduct.OldPrice = product.OldPrice;
+                    newproduct.CreationDate = DateTime.Now;
 
                     entities.Products.Add(newproduct);
                     entities.SaveChanges();
