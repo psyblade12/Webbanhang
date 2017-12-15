@@ -386,6 +386,10 @@ namespace Webbanhang.Controllers
             var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
 
             IdentityResult result = await UserManager.CreateAsync(user, model.Password);
+            if (result.Succeeded!=true)
+            {
+                return GetErrorResult(result);
+            }
             using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
             {
                 entities.Configuration.ProxyCreationEnabled = false;
