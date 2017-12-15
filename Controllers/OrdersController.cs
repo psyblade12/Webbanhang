@@ -106,7 +106,7 @@ namespace Webbanhang.Controllers
 
         [HttpGet]
         [Route("api/Orders/LoadAllOrdersAndOrderItem")]
-        public HttpResponseMessage LoadAllOrdersAndOrderItem([FromUri] string month = null, string year = null, string minTotalPrice = null, string maxTotalPrice = null)
+        public HttpResponseMessage LoadAllOrdersAndOrderItem([FromUri] string month = null, string year = null, string minTotalPrice = null, string maxTotalPrice = null, string orderIDtoSearch = null, string skip = null, string take = null)
         {
             try
             {
@@ -114,6 +114,13 @@ namespace Webbanhang.Controllers
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
                     var result = entities.OrderItems.GroupBy(x => new { x.OrderID, x.Order.OrderDate, x.Order.AspNetUser.Id, x.Order.OrderNameofUser, x.Order.OrderPhoneNumber, x.Order.OrderAddress, x.Order.AspNetUser.UserName, totalPrice = entities.OrderItems.Where(g => g.OrderID == x.OrderID).Sum(h => h.FinalPrice) }).Select(y => new { orderID = y.Key.OrderID, orderDate = y.Key.OrderDate, orderUser = y.Key.UserName, orderUserID = y.Key.Id, orderNameofUser = y.Key.OrderNameofUser, orderAddress = y.Key.OrderAddress, orderPhoneNumber = y.Key.OrderPhoneNumber, orderTotalPrice = y.Key.totalPrice, orderItemIDs = y.Select(z => new { orderItemID = z.OrderItemID, orderItemState = z.OrderState, orderItemQuantity = z.Quantity, orderItemPrice = z.FinalPrice, itemID = z.Product.ProductID, productName = z.Product.ProductName, productImage = z.Product.ProductImage }).ToList() }).ToList();
+                    result = result.OrderByDescending(x => x.orderDate).ToList();
+                    if (orderIDtoSearch != null)
+                    {
+                        int tempOrderIDtoSearch = Convert.ToInt32(orderIDtoSearch);
+                        result = result.Where(x => x.orderID == tempOrderIDtoSearch).ToList();
+                    }
+
                     if (month != null)
                     {
                         int tempMonth = Convert.ToInt32(month);
@@ -142,6 +149,20 @@ namespace Webbanhang.Controllers
                     {
                         int tempMaxTotalPrice = Convert.ToInt32(maxTotalPrice);
                         result = result.Where(x => x.orderTotalPrice >= tempMaxTotalPrice).ToList();
+                    }
+
+                    if (take != null)
+                    {
+                        int tempTake = Convert.ToInt32(take);
+                        if(skip !=null)
+                        {
+                            int tempSkip = Convert.ToInt32(skip);
+                            result = result.Skip(tempSkip).Take(tempTake).ToList();
+                        }
+                        else
+                        {
+                            result = result.Take(tempTake).ToList();
+                        }
                     }
                     return Request.CreateResponse(HttpStatusCode.OK, result);
                 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using Webbanhang.Models;
 
 namespace Webbanhang.Controllers
 {
@@ -87,14 +88,20 @@ namespace Webbanhang.Controllers
 
         [HttpPost]
         [Authorize]
-        public HttpResponseMessage Post([FromBody] BanAccount ba)
+        public HttpResponseMessage Post([FromBody] BanAccountModel ba)
         {
             try
             {
                 using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
-                    entities.BanAccounts.Add(ba);
+
+                    BanAccount banacc = new BanAccount();
+                    banacc.UserID = ba.UserID;
+                    banacc.Reason = ba.Reason;
+                    banacc.LiftDate = Convert.ToDateTime(ba.LiftDate);
+                    entities.BanAccounts.Add(banacc);
+
                     entities.SaveChanges();
                     return Request.CreateResponse(HttpStatusCode.OK, "POST OK");
                 }

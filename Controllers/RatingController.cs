@@ -55,14 +55,38 @@ namespace Webbanhang.Controllers
         [HttpGet]
         [Route("api/Rating/GetListOfAverageRatingListByMerchant")]
         [AllowAnonymous]
-        public HttpResponseMessage GetListOfAverageRatingListByMerchant()
+        public HttpResponseMessage GetListOfAverageRatingListByMerchant(string sort = "dsc", string skip ="0", string take = "5")
         {
             try
             {
                 using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
-                    var detailRatingbyMerchant = entities.Ratings.GroupBy(x => new { x.Product.UserID, x.Product.AspNetUser.UserName }).Select(g => new { g.Key.UserID, g.Key.UserName, AverageRating = g.Average(x => x.Rating1), RatingTime = g.Count() }).OrderByDescending(x => x.AverageRating).ThenByDescending(x => x.RatingTime).ToList();
+                    var detailRatingbyMerchant = entities.Ratings.GroupBy(x => new { x.Product.UserID, x.Product.AspNetUser.UserName }).Select(g => new { g.Key.UserID, g.Key.UserName, AverageRating = g.Average(x => x.Rating1), RatingTime = g.Count() }).ToList();
+                    if(sort !=null)
+                    {
+                        if (sort == "dsc")
+                        {
+                            detailRatingbyMerchant = detailRatingbyMerchant.OrderByDescending(x => x.AverageRating).ToList();
+                        }
+                        if (sort == "asc")
+                        {
+                            detailRatingbyMerchant = detailRatingbyMerchant.OrderByDescending(x => x.AverageRating).ToList();
+                        }
+                    }
+                    if (take != null)
+                    {
+                        int tempTake = Convert.ToInt32(take);
+                        if (skip != null)
+                        {
+                            int tempSkip = Convert.ToInt32(skip);
+                            detailRatingbyMerchant = detailRatingbyMerchant.Skip(tempSkip).Take(tempTake).ToList();
+                        }
+                        else
+                        {
+                            detailRatingbyMerchant = detailRatingbyMerchant.Take(tempTake).ToList();
+                        }
+                    }
                     return Request.CreateResponse(HttpStatusCode.OK, detailRatingbyMerchant);
                 }
             }
@@ -77,7 +101,7 @@ namespace Webbanhang.Controllers
         [HttpGet]
         [Route("api/Rating/GetListOfAverageRatingListByProduct")]
         [AllowAnonymous]
-        public HttpResponseMessage GetListOfAverageRatingListByProduct()
+        public HttpResponseMessage GetListOfAverageRatingListByProduct(string sort = null)
         {
             try
             {

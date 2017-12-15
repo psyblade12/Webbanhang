@@ -63,4 +63,12 @@ namespace Webbanhang.Models
         [Range(0, Int32.MaxValue)]
         public Nullable<int> OldPrice { get; set; }
     }
+
+    public class BanAccountModel
+    {
+        public string UserID { get; set; }
+        [StringLength(100, ErrorMessage = "Trường {0} phải dài ít nhất {2} kí tự.", MinimumLength = 2)]
+        public string Reason { get; set; }
+        public string LiftDate { get; set; }
+    }
 }
