@@ -20,7 +20,7 @@ namespace Webbanhang.Controllers
                 using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
-                    var returnlist = entities.SponsoredNewsOrders.ToList();
+                    var returnlist = entities.SponsoredNewsOrders.Select(x => new { x.SponsoredNewsOrderID, x.UserID, userName = entities.AspNetUsers.FirstOrDefault(y => y.Id == x.UserID).UserName, x.Quantity, x.SumPrice, x.SponsoredNewsOrderDate }).OrderByDescending(x=>x.SponsoredNewsOrderDate).ToList();
 
                     if (month != null )
                     {
@@ -35,6 +35,45 @@ namespace Webbanhang.Controllers
                     }
 
                     return Request.CreateResponse(HttpStatusCode.OK, returnlist);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+        [HttpGet]
+        [Route("api/SponsoredNewsOrders/SponsoredNewsAnalysis")]
+        //Thống kê số tin bán được và số tiền thu được. Nếu không điền month và year thì sẽ thống kê tất cả từ trước đến giờ.
+        //Nếu có truyền year month vào thì thống kê tương đương tháng đó
+        //Nếu truyền vào thêm month và year thì sẽ lọc ra tất các hóa đơn có trong thời gian đó
+        public HttpResponseMessage SponsoredNewsAnalysis(string month = null, string year = null)
+        {
+            try
+            {
+                using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+                {
+                    entities.Configuration.ProxyCreationEnabled = false;
+                    var returnlist = entities.SponsoredNewsOrders.ToList();
+
+                    if (month != null)
+                    {
+                        int tempMoth = Convert.ToInt32(month);
+                        returnlist = returnlist.Where(x => x.SponsoredNewsOrderDate.Value.Month == tempMoth).ToList();
+                    }
+
+                    if (year != null)
+                    {
+                        int tempYear = Convert.ToInt32(year);
+                        returnlist = returnlist.Where(x => x.SponsoredNewsOrderDate.Value.Year == tempYear).ToList();
+                    }
+
+                    int sumQuantity = Convert.ToInt32(returnlist.Sum(x => x.Quantity));
+                    int sumPrice = Convert.ToInt32(returnlist.Sum(x => x.SumPrice));
+                    var result = new { sumquantity = sumQuantity, sumPrice = sumPrice };
+
+                    return Request.CreateResponse(HttpStatusCode.OK, result);
                 }
             }
             catch (Exception ex)

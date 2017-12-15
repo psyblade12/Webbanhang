@@ -128,7 +128,7 @@ namespace Webbanhang.Controllers
                     var entity = entities.UserInfos.FirstOrDefault(e => e.UserID == uid);
                     if (entity == null)
                     {
-                        return Request.CreateErrorResponse(HttpStatusCode.BadRequest,"");
+                        return Request.CreateErrorResponse(HttpStatusCode.BadRequest,"Có lỗi xảy ra");
                     }
                     else
                     {
@@ -139,7 +139,7 @@ namespace Webbanhang.Controllers
                         entity.CMND = userinfo.CMND;
                         entities.SaveChanges();
 
-                        return Request.CreateResponse(HttpStatusCode.OK, entity);
+                        return Request.CreateResponse(HttpStatusCode.OK, "Đã sửa");
                     }
                 }
             }

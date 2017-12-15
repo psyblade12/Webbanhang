@@ -111,7 +111,14 @@ namespace Webbanhang.Controllers
                     {
                         return Request.CreateErrorResponse(HttpStatusCode.BadGateway, "Phải rate từ 0-> 10");
                     }
+                    //Kiểm tra người Rate có phải chủ của Product không. Chủ product ko hể rate sản phẩm của chính mình
+                    string IDofProductOwner = entities.Products.FirstOrDefault(x => x.ProductID == pid).UserID;
+                    if(currentUserID == IDofProductOwner)
+                    {
+                        return Request.CreateErrorResponse(HttpStatusCode.BadGateway, "Bạn không thể rate sản phẩm của chính mình");
+                    }
 
+                    //Kiểm tra xem đã vote chưa, 1 người chỉ được vote sản phẩm 1 lần
                     var checkIfRated = entities.Ratings.FirstOrDefault(x => x.ProductID == pid && x.UserID == currentUserID);
                     if(checkIfRated != null)
                     {
@@ -232,7 +239,9 @@ namespace Webbanhang.Controllers
                 {
                     if (userid != null)
                     {
-                        var result = entities.Ratings.Where(x => x.Product.UserID == userid).Average(x => x.Rating1);
+                        var average = entities.Ratings.Where(x => x.Product.UserID == userid).Average(x => x.Rating1);
+                        string merchantName = entities.Ratings.FirstOrDefault(x => x.Product.UserID == userid).Product.UserID;
+                        var result = new { MerchantName = merchantName, averageRating = average };
                         return Request.CreateResponse(HttpStatusCode.OK, result);
                     }
                     
@@ -243,7 +252,9 @@ namespace Webbanhang.Controllers
                         if (find != null)
                         {
                             string uid = find.UserID;
-                            var result = entities.Ratings.Where(x => x.Product.UserID == uid).Average(x => x.Rating1);
+                            var average = entities.Ratings.Where(x => x.Product.UserID == uid).Average(x => x.Rating1);
+                            string merchantName = entities.AspNetUsers.FirstOrDefault(x => x.Id == uid).UserName;
+                            var result = new { MerchantName = merchantName, averageRating = average };
                             return Request.CreateResponse(HttpStatusCode.OK, result);
                         }
                     }
