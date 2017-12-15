@@ -55,7 +55,7 @@ namespace Webbanhang.Controllers
         [HttpGet]
         [Route("api/Rating/GetListOfAverageRatingListByMerchant")]
         [AllowAnonymous]
-        public HttpResponseMessage GetListOfAverageRatingListByMerchant(string sort = "dsc", string skip ="0", string take = "5")
+        public HttpResponseMessage GetListOfAverageRatingListByMerchant(string sort = "asc", string skip ="0", string take = "5")
         {
             try
             {
@@ -71,7 +71,7 @@ namespace Webbanhang.Controllers
                         }
                         if (sort == "asc")
                         {
-                            detailRatingbyMerchant = detailRatingbyMerchant.OrderByDescending(x => x.AverageRating).ToList();
+                            detailRatingbyMerchant = detailRatingbyMerchant.OrderBy(x => x.AverageRating).ToList();
                         }
                     }
                     if (take != null)

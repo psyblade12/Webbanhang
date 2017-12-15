@@ -38,7 +38,7 @@ namespace Webbanhang.Controllers
 
         [HttpGet]
         [Route("api/Products/SearchProduct")]
-        public HttpResponseMessage SearchProductByType([FromUri] string userid = null, string name = null, string productTypeid = null, string brandId = null, string priceMin = null, string priceMax = null)
+        public HttpResponseMessage SearchProductByType([FromUri] string userid = null, string name = null, string productTypeid = null, string brandId = null, string priceMin = null, string priceMax = null, string sort="dsc", string skip =null, string take =null)
         {
             using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
             {
@@ -72,6 +72,31 @@ namespace Webbanhang.Controllers
                 if(priceMax !=null)
                 {
                     entity = entity.Where(x => x.Price <= Convert.ToInt32(priceMax)).ToList();
+                }
+
+                if(sort !=null)
+                {
+                    if(sort=="dsc")
+                    {
+                        entity = entity.OrderByDescending(x => x.ProductID).ToList();
+                    }
+                    if(sort == "asc")
+                    {
+                        entity = entity.OrderBy(x => x.ProductID).ToList();
+                    }
+                }
+                if(take != null)
+                {
+                    int tempTake = Convert.ToInt32(take);
+                    if(skip !=null)
+                    {
+                        int tempSkip = Convert.ToInt32(skip);
+                        entity = entity.Skip(tempSkip).Take(tempTake).ToList();
+                    }
+                    else
+                    {
+                        entity = entity.Take(tempTake).ToList();
+                    }
                 }
 
                 return Request.CreateResponse(HttpStatusCode.OK, entity);
