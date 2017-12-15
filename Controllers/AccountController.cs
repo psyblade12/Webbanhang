@@ -589,6 +589,15 @@ namespace Webbanhang.Controllers
             return Request.CreateErrorResponse(HttpStatusCode.OK, User.Identity.GetUserId() +", Is activated?: "+ User.IsInRole("ActivatedUser").ToString() + ", Is a Merchant: " + User.IsInRole("Merchant") + ", Is admin: " + User.IsInRole("Admin").ToString());
         }
 
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("AmIinole")]
+        public HttpResponseMessage AmIinRole(string role)
+        {
+            bool result = User.IsInRole(role);
+            return Request.CreateResponse(HttpStatusCode.OK, result);
+        }
+
         [AllowAnonymous]
         [Route("Addrole")]
         public async Task<IHttpActionResult> Addrole([FromUri]string newRole)
