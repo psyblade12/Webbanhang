@@ -87,6 +87,33 @@ namespace Webbanhang.Controllers
         }
 
         [HttpGet]
+        [Authorize]
+        [Route("api/UserInfos/LoadUserInfoByUserID")]
+        public HttpResponseMessage LoadUserInfoByUserID(string uid)
+        {
+            try
+            {
+                using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+                {
+                    entities.Configuration.ProxyCreationEnabled = false;
+                    var entity = entities.UserInfos.FirstOrDefault(e => e.UserID == uid);
+                    if (entity != null)
+                    {
+                        return Request.CreateResponse(HttpStatusCode.OK, entity);
+                    }
+                    else
+                    {
+                        return Request.CreateErrorResponse(HttpStatusCode.NotFound, uid.ToString() + "not found");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+        [HttpGet]
         [Route("api/UserInfos/CurrentUserInfo")]
         [Authorize]
         public HttpResponseMessage GetCurrentUserInfo()

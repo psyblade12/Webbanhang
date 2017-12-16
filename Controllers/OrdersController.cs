@@ -114,6 +114,12 @@ namespace Webbanhang.Controllers
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
                     var result = entities.OrderItems.GroupBy(x => new { x.OrderID, x.Order.OrderDate, x.Order.AspNetUser.Id, x.Order.OrderNameofUser, x.Order.OrderPhoneNumber, x.Order.OrderAddress, x.Order.AspNetUser.UserName, totalPrice = entities.OrderItems.Where(g => g.OrderID == x.OrderID).Sum(h => h.FinalPrice) }).Select(y => new { orderID = y.Key.OrderID, orderDate = y.Key.OrderDate, orderUser = y.Key.UserName, orderUserID = y.Key.Id, orderNameofUser = y.Key.OrderNameofUser, orderAddress = y.Key.OrderAddress, orderPhoneNumber = y.Key.OrderPhoneNumber, orderTotalPrice = y.Key.totalPrice, orderItemIDs = y.Select(z => new { orderItemID = z.OrderItemID, orderItemState = z.OrderState, orderItemQuantity = z.Quantity, orderItemPrice = z.FinalPrice, itemID = z.Product.ProductID, sellerID = z.Product.UserID, productName = z.Product.ProductName, productImage = z.Product.ProductImage }).ToList() }).ToList();
+                    if (seller != null)
+                    {
+                        string sellerIDtofind = entities.UserInfos.FirstOrDefault(x => x.Name.ToLower().Contains(seller)).UserID.ToString();
+                        var templist = entities.OrderItems.Where(x => x.ShopID == sellerIDtofind);
+                        result = templist.GroupBy(x => new { x.OrderID, x.Order.OrderDate, x.Order.AspNetUser.Id, x.Order.OrderNameofUser, x.Order.OrderPhoneNumber, x.Order.OrderAddress, x.Order.AspNetUser.UserName, totalPrice = entities.OrderItems.Where(g => g.OrderID == x.OrderID).Sum(h => h.FinalPrice) }).Select(y => new { orderID = y.Key.OrderID, orderDate = y.Key.OrderDate, orderUser = y.Key.UserName, orderUserID = y.Key.Id, orderNameofUser = y.Key.OrderNameofUser, orderAddress = y.Key.OrderAddress, orderPhoneNumber = y.Key.OrderPhoneNumber, orderTotalPrice = y.Key.totalPrice, orderItemIDs = y.Select(z => new { orderItemID = z.OrderItemID, orderItemState = z.OrderState, orderItemQuantity = z.Quantity, orderItemPrice = z.FinalPrice, itemID = z.Product.ProductID, sellerID = z.Product.UserID, productName = z.Product.ProductName, productImage = z.Product.ProductImage }).ToList() }).ToList();
+                    }
                     result = result.OrderByDescending(x => x.orderDate).ToList();
                     if (orderIDtoSearch != null)
                     {
@@ -151,9 +157,13 @@ namespace Webbanhang.Controllers
                         result = result.Where(x => x.orderTotalPrice >= tempMaxTotalPrice).ToList();
                     }
 
+                    //if (buyer != null)
+                    //{
+                    //    result = result.Where(x => x.orderNameofUser!=null && x.orderNameofUser.Contains(buyer)).ToList();
+                    //}
                     if (buyer != null)
                     {
-                        result = result.Where(x => x.orderNameofUser!=null && x.orderNameofUser.Contains(buyer)).ToList();
+                        result = result.Where(x => x.orderNameofUser != null && x.orderNameofUser.ToLower().Contains(buyer.ToLower())).ToList();
                     }
 
                     if (date !=null)

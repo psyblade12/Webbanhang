@@ -109,7 +109,7 @@ namespace Webbanhang.Controllers
         }
 
         [HttpGet]
-        public HttpResponseMessage LoadAllProduct(string sort=null)
+        public HttpResponseMessage LoadAllProduct(string sort=null, string take = null)
         {
             try
             {
@@ -117,6 +117,11 @@ namespace Webbanhang.Controllers
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
                     var result = entities.Products.ToList();
+                    if(take!=null)
+                    {
+                        int takeTemp = Convert.ToInt32(take);
+                        result = result.Take(takeTemp).ToList();
+                    }
                     if (sort == "dsc")
                     {
                         result.Reverse();
@@ -357,6 +362,36 @@ namespace Webbanhang.Controllers
                         {
                             return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Có lỗi xảy ra");
                         }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+        [HttpDelete]
+        [Authorize]
+        [Route("api/Products/DeleteProductForAdmin")]
+        public HttpResponseMessage DeleteProductForAdmin(int id)
+        {
+            try
+            {
+                using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+                {
+                    entities.Configuration.ProxyCreationEnabled = false;
+                    var entity = entities.Products.FirstOrDefault(e => e.ProductID == id);
+                    if (entity == null)
+                    {
+                        return Request.CreateErrorResponse(HttpStatusCode.NotFound,
+                            "Product with Id = " + id.ToString() + " not found to delete");
+                    }
+                    else
+                    {
+                        entities.Products.Remove(entity);
+                        entities.SaveChanges();
+                        return Request.CreateResponse(HttpStatusCode.OK, "Delete OK");
                     }
                 }
             }

@@ -86,6 +86,62 @@ namespace Webbanhang.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("api/BanAccount/CheckBanByUserID")]
+        [Authorize]
+        public HttpResponseMessage CheckBanByUserID(string uid)
+        {
+            try
+            {
+                using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+                {
+                    bool flag = false;
+                    entities.Configuration.ProxyCreationEnabled = false;
+                    var list = entities.BanAccounts.Where(x => x.UserID == uid && x.LiftDate > DateTime.Now).ToList();
+                    if (list.Count != 0)
+                    {
+                        flag = true;
+                        var respond = new { banned = flag, reason = list[list.Count - 1].Reason };
+                        return Request.CreateResponse(HttpStatusCode.OK, respond);
+                    }
+                    else
+                    {
+                        var respond2 = new { banned = flag, reason = "" };
+                        return Request.CreateResponse(HttpStatusCode.OK, respond2);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+        [HttpGet]
+        [Route("api/BanAccount/RemoveBan")]
+        [Authorize]
+        public HttpResponseMessage RemoveBan(string uid)
+        {
+            try
+            {
+                using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+                {
+                    entities.Configuration.ProxyCreationEnabled = false;
+                    var list = entities.BanAccounts.Where(x => x.UserID == uid && x.LiftDate > DateTime.Now).ToList();
+                    foreach (var s in list)
+                    {
+                        entities.BanAccounts.Remove(s);
+                    }
+                    entities.SaveChanges();
+                    return Request.CreateResponse(HttpStatusCode.OK, "Đã gỡ ban");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
         [HttpPost]
         [Authorize]
         public HttpResponseMessage Post([FromBody] BanAccountModel ba)
