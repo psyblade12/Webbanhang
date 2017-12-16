@@ -93,3 +93,8 @@ C:\Users\Thuan\documents\visual studio 2015\Projects\Webbanhang\Webbanhang\bin\S
 C:\Users\Thuan\documents\visual studio 2015\Projects\Webbanhang\Webbanhang\bin\System.Web.Http.Cors.xml
 C:\Users\Thuan\documents\visual studio 2015\Projects\Webbanhang\Webbanhang\bin\Microsoft.Owin.Cors.dll
 C:\Users\Thuan\documents\visual studio 2015\Projects\Webbanhang\Webbanhang\bin\Microsoft.Owin.Cors.xml
+C:\Users\Thuan\Documents\Visual Studio 2015\Projects\Webbanhang\Webbanhang\bin\Microsoft.Azure.AppService.ApiApps.Service.dll
+C:\Users\Thuan\Documents\Visual Studio 2015\Projects\Webbanhang\Webbanhang\bin\Swashbuckle.Core.dll
+C:\Users\Thuan\Documents\Visual Studio 2015\Projects\Webbanhang\Webbanhang\bin\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\Thuan\Documents\Visual Studio 2015\Projects\Webbanhang\Webbanhang\bin\WebActivatorEx.dll
+C:\Users\Thuan\Documents\Visual Studio 2015\Projects\Webbanhang\Webbanhang\bin\System.IdentityModel.Tokens.Jwt.xml

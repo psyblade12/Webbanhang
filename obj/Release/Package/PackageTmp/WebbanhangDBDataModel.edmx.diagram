@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="e3596e10ae464e2aa8ff016113b1fc87" Name="Diagram1" ZoomLevel="93">
+        <EntityTypeShape EntityType="WebbanhangDBModel.C__MigrationHistory" Width="1.5" PointX="1.25" PointY="4" IsExpanded="true" />
+        <EntityTypeShape EntityType="WebbanhangDBModel.AspNetRole" Width="1.5" PointX="4.375" PointY="5" IsExpanded="true" />
+        <EntityTypeShape EntityType="WebbanhangDBModel.AspNetUserClaim" Width="1.5" PointX="3.75" PointY="7" IsExpanded="true" />
+        <EntityTypeShape EntityType="WebbanhangDBModel.AspNetUserLogin" Width="1.5" PointX="4.125" PointY="9.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="WebbanhangDBModel.AspNetUser" Width="1.5" PointX="6.25" PointY="4" IsExpanded="true" />
+        <EntityTypeShape EntityType="WebbanhangDBModel.Brand" Width="1.5" PointX="13" PointY="5.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="WebbanhangDBModel.OrderItem" Width="1.5" PointX="10.875" PointY="6.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="WebbanhangDBModel.Order" Width="1.5" PointX="7.5" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="WebbanhangDBModel.Product" Width="1.5" PointX="8.25" PointY="3.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="WebbanhangDBModel.ProductType" Width="1.5" PointX="4.5" PointY="3" IsExpanded="true" />
+        <EntityTypeShape EntityType="WebbanhangDBModel.Rating" Width="1.5" PointX="10.75" PointY="2.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="WebbanhangDBModel.UserInfo" Width="1.5" PointX="9.375" PointY="9.375" IsExpanded="true" />
+        <AssociationConnector Association="WebbanhangDBModel.FK_dbo_AspNetUserClaims_dbo_AspNetUsers_UserId" ManuallyRouted="false" />
+        <AssociationConnector Association="WebbanhangDBModel.FK_dbo_AspNetUserLogins_dbo_AspNetUsers_UserId" ManuallyRouted="false" />
+        <AssociationConnector Association="WebbanhangDBModel.FK__OrderItem__ShopI__33D4B598" ManuallyRouted="false" />
+        <AssociationConnector Association="WebbanhangDBModel.FK__Orders__UserID__300424B4" ManuallyRouted="false" />
+        <AssociationConnector Association="WebbanhangDBModel.FK__Products__UserID__276EDEB3" ManuallyRouted="false" />
+        <AssociationConnector Association="WebbanhangDBModel.FK__Ratings__UserID__2D27B809" ManuallyRouted="false" />
+        <AssociationConnector Association="WebbanhangDBModel.FK__UserInfos__UserI__24927208" ManuallyRouted="false" />
+        <AssociationConnector Association="WebbanhangDBModel.FK__Products__BrandI__29572725" ManuallyRouted="false" />
+        <AssociationConnector Association="WebbanhangDBModel.FK__OrderItem__Order__32E0915F" ManuallyRouted="false" />
+        <AssociationConnector Association="WebbanhangDBModel.FK__OrderItem__Produ__34C8D9D1" ManuallyRouted="false" />
+        <AssociationConnector Association="WebbanhangDBModel.FK__Products__Produc__286302EC" ManuallyRouted="false" />
+        <AssociationConnector Association="WebbanhangDBModel.FK__Ratings__Product__2C3393D0" ManuallyRouted="false" />
+        <AssociationConnector Association="WebbanhangDBModel.AspNetUserRoles" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="WebbanhangDBModel.SponsoredNewsOrder" Width="1.5" PointX="8.5" PointY="0.75" />
+        <AssociationConnector Association="WebbanhangDBModel.FK__Sponsored__UserI__49C3F6B7" />
+        <EntityTypeShape EntityType="WebbanhangDBModel.SponsoredItem" Width="1.5" PointX="10.5" PointY="13.25" />
+        <AssociationConnector Association="WebbanhangDBModel.FK__Sponsored__Produ__4F7CD00D" />
+        <EntityTypeShape EntityType="WebbanhangDBModel.BanAccount" Width="1.5" PointX="8.5" PointY="16.75" />
+        <EntityTypeShape EntityType="WebbanhangDBModel.Report" Width="1.5" PointX="13.5" PointY="2.125" />
+        <AssociationConnector Association="WebbanhangDBModel.FK__BanAccoun__UserI__693CA210" />
+        <AssociationConnector Association="WebbanhangDBModel.FK__Report__UserID__6C190EBB" />
+        <AssociationConnector Association="WebbanhangDBModel.FK__Report__ProductI__6D0D32F4" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

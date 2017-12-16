@@ -84,6 +84,11 @@ namespace Webbanhang.Controllers
                     {
                         entity = entity.OrderBy(x => x.ProductID).ToList();
                     }
+                    if(sort == "ran")
+                    {
+                        var rnd = new Random();
+                        entity =  entity.OrderBy(x => rnd.Next()).ToList();
+                    }
                 }
                 if(take != null)
                 {
