@@ -19,6 +19,7 @@ namespace Webbanhang.Controllers
     {
         [HttpPost]
         [Route("api/Orders/MakeOrder")]
+        [Authorize(Roles = "ActivatedUser")]
         public HttpResponseMessage MakeOrder(InfoBindingModel info)
         {
             try
@@ -63,7 +64,7 @@ namespace Webbanhang.Controllers
 
                         //Reduce quantity.
                         var reduceQuantity = entities.Products.FirstOrDefault(e => e.ProductID == maitem);
-                        if (reduceQuantity.Stock <= item.quantity)
+                        if (reduceQuantity.Stock < item.quantity)
                         {
                             throw new Exception("Quantity is higher than stock");
                         }
