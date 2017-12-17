@@ -51,7 +51,7 @@ namespace Webbanhang.Controllers
                 }
                 if (name != null)
                 {
-                    entity = entity.Where(x => x.ProductName.Contains(name)).ToList();
+                    entity = entity.Where(x => x.ProductName.ToLower().Contains(name.ToLower())).ToList();
                 }
 
                 if (productTypeid != null)

@@ -30,7 +30,7 @@ namespace Webbanhang.Controllers
 
         [HttpGet]
         [Route("api/SponsoredItems/LoadAllSponsoredItemsInTime")]
-        public HttpResponseMessage LoadAllSponsoredItemsInTime()
+        public HttpResponseMessage LoadAllSponsoredItemsInTime(string skip = null, string take = null)
         {
             try
             {
@@ -43,6 +43,20 @@ namespace Webbanhang.Controllers
                         endDate = y.EndDate,
                         product = entities.Products.FirstOrDefault(z => y.ProductID == z.ProductID)
                     }).ToList();
+
+                    if (take != null)
+                    {
+                        int tempTake = Convert.ToInt32(take);
+                        if (skip != null)
+                        {
+                            int tempSkip = Convert.ToInt32(skip);
+                            result = result.Skip(tempSkip).Take(tempTake).ToList();
+                        }
+                        else
+                        {
+                            result = result.Take(tempTake).ToList();
+                        }
+                    }
                     return Request.CreateResponse(HttpStatusCode.OK, result);
                 }
             }

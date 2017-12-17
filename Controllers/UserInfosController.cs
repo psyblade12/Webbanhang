@@ -88,6 +88,26 @@ namespace Webbanhang.Controllers
 
         [HttpGet]
         [Authorize]
+        [Route("api/UserInfos/LoadSoLuongTinVipConLai")]
+        public HttpResponseMessage LoadSoLuongTinVipConLai()
+        {
+            try
+            {
+                using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+                {
+                    entities.Configuration.ProxyCreationEnabled = false;
+                    string currentuid = User.Identity.GetUserId();
+                    return Request.CreateResponse(HttpStatusCode.OK, entities.UserInfos.FirstOrDefault(x => x.UserID == currentuid).VipNewsCount);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+        [HttpGet]
+        [Authorize]
         [Route("api/UserInfos/LoadUserInfoByUserID")]
         public HttpResponseMessage LoadUserInfoByUserID(string uid)
         {

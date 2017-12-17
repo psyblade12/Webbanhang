@@ -135,6 +135,13 @@ namespace Webbanhang.Controllers
                     {
                         return Request.CreateErrorResponse(HttpStatusCode.BadGateway, "Phải rate từ 0-> 10");
                     }
+                    //Kiểm tra xem người đó đã mua hàng hay chưa, nếu chưa mua thì không được rate
+                    var checkBought = entities.OrderItems.Where(x => x.Order.UserID == currentUserID && x.ProductID == pid).FirstOrDefault();
+                    if (checkBought == null)
+                    {
+                        return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Bạn chưa mua sản phẩm này nên không được đánh giá");
+                    }
+
                     //Kiểm tra người Rate có phải chủ của Product không. Chủ product ko hể rate sản phẩm của chính mình
                     string IDofProductOwner = entities.Products.FirstOrDefault(x => x.ProductID == pid).UserID;
                     if(currentUserID == IDofProductOwner)
