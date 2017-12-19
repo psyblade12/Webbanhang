@@ -117,6 +117,7 @@ namespace Webbanhang.Controllers
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
                     var result = entities.Products.ToList();
+                    result = result.OrderByDescending(x => x.ProductID).ToList();
                     if(take!=null)
                     {
                         int takeTemp = Convert.ToInt32(take);
@@ -124,7 +125,7 @@ namespace Webbanhang.Controllers
                     }
                     if (sort == "dsc")
                     {
-                        result.Reverse();
+                        result = result.OrderByDescending(x => x.ProductID).ToList();
                     }
                     return Request.CreateResponse(HttpStatusCode.OK, result);
                 }
@@ -250,7 +251,7 @@ namespace Webbanhang.Controllers
                     var list = entities.BanAccounts.Where(x => x.UserID == currentUserID && x.LiftDate > DateTime.Now).ToList();
                     if (list.Count != 0)
                     {
-                        return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Bạn đang bị ban");
+                        return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Bạn đang bị ban, lý do: "+list[0].Reason);
                     }
                     //Hết kiểm tra bị ban
 

@@ -68,7 +68,13 @@ namespace Webbanhang.Controllers
                 var producttoCheck = entities.Products.Where(x => x.ProductID == pid).FirstOrDefault();
                 if (producttoCheck.UserID == userid)
                 {
-                    return Request.CreateResponse(HttpStatusCode.NotAcceptable, "Không được mua hàng của chính mình");
+                    return Request.CreateResponse(HttpStatusCode.NotAcceptable, "Không được mua hàng của chính mình.");
+                }
+
+                //Kiểm tra xem sản phẩm đang định bỏ vào giỏ hàng có phải nhỏ hơn stock hay không:
+                if (producttoCheck.Stock < q)
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotAcceptable, "Chỉ được đặt mua số lượng nhỏ hơn stock.");
                 }
 
                 //Tìm thử xem có sẵn chưa, nếu có rồi thì chỉ cộng thêm số lượng

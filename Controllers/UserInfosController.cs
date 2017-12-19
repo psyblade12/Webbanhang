@@ -13,15 +13,34 @@ namespace Webbanhang.Controllers
     public class UserInfosController : ApiController
     {
         [HttpGet]
-        [Authorize]
-        public HttpResponseMessage LoadAllUserInfo()
+        //[Authorize]
+        public HttpResponseMessage LoadAllUserInfo(string take = null, string userid = null, string ten = null, string email =null)
         {
             try
             {
                 using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
                 {
                     entities.Configuration.ProxyCreationEnabled = false;
-                    return Request.CreateResponse(HttpStatusCode.OK, entities.UserInfos.ToList());
+                    var result = entities.UserInfos.Select(x=>new {x.UserInfoID, x.UserID, x.Name, x.PhoneNumber, x.HomeAddress, x.CMND, LoginEmail = entities.AspNetUsers.FirstOrDefault(y=>y.Id == x.UserID).UserName}).ToList();
+                    result = result.OrderByDescending(x => x.UserInfoID).ToList();
+                    if(userid !=null)
+                    {
+                        result = result.Where(x => x.UserID == userid).ToList();
+                    }
+                    if(ten != null)
+                    {
+                        result = result.Where(x => x.Name == ten).ToList();
+                    }
+                    if(email !=null)
+                    {
+                        result = result.Where(x => x.LoginEmail == email).ToList();
+                    }
+                    if (take != null)
+                    {
+                        int tempTake = Convert.ToInt32(take);
+                        result = result.Take(tempTake).ToList();
+                    }
+                    return Request.CreateResponse(HttpStatusCode.OK, result);
                 }
             }
             catch (Exception ex)
@@ -164,10 +183,14 @@ namespace Webbanhang.Controllers
         [HttpPut]
         [Route("api/UserInfos/CurrentUserInfo")]
         [Authorize]
-        public HttpResponseMessage EditCurrentUserInfo([FromBody]UserInfo userinfo)
+        public HttpResponseMessage EditCurrentUserInfo([FromBody]UserinfoModel userinfo)
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
+                }
                 using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
                 {
                     entities.Configuration.ProxyCreationEnabled = false;

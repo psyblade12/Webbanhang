@@ -416,7 +416,7 @@ namespace Webbanhang.Controllers
                 client.DeliveryMethod = SmtpDeliveryMethod.Network;
                 client.UseDefaultCredentials = false;
                 client.Credentials = new System.Net.NetworkCredential("psybladebackup@gmail.com", "hoahoa123");
-                MailMessage mm = new MailMessage("psybladebackup@gmail.com", model.Email, "Kích hoạt tài khoản", "http://localhost:33733/EmailConfirmation.html?userid=" + newID + "&token=" + confirmationToken.Replace("+", "%252b"));
+                MailMessage mm = new MailMessage("psybladebackup@gmail.com", model.Email, "Kích hoạt tài khoản", "http://localhost:8000/emailconfirm?userid=" + newID + "&token=" + confirmationToken.Replace("+", "%252b"));
                 mm.BodyEncoding = UTF8Encoding.UTF8;
                 mm.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
 
@@ -517,7 +517,7 @@ namespace Webbanhang.Controllers
                             client.DeliveryMethod = SmtpDeliveryMethod.Network;
                             client.UseDefaultCredentials = false;
                             client.Credentials = new System.Net.NetworkCredential("psybladebackup@gmail.com", "hoahoa123");
-                            MailMessage mm = new MailMessage("psybladebackup@gmail.com", User.Identity.Name, "Kích hoạt tài khoản merchant", "http://localhost:33733/ActivateMerchantAccount.html");
+                            MailMessage mm = new MailMessage("psybladebackup@gmail.com", User.Identity.Name, "Kích hoạt tài khoản merchant", "http://localhost:8000/confirmmerchentaccount");
                             mm.BodyEncoding = UTF8Encoding.UTF8;
                             mm.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
                             client.Send(mm);

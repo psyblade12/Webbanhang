@@ -31,6 +31,7 @@ namespace Webbanhang.Models
         public string Email { get; set; }
 
         [Phone]
+        [StringLength(11, ErrorMessage = "Chứng minh nhân dân không đúng", MinimumLength = 10)]
         public string PhoneNumber { get; set; }
         
         public string Cart { get; set; }
