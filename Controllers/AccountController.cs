@@ -595,6 +595,29 @@ namespace Webbanhang.Controllers
 
         [HttpGet]
         [AllowAnonymous]
+        [Route("GetIDAndEmailofCurrentUser")]
+        public HttpResponseMessage GetIDAndEmailofCurrentUser()
+        {
+            try
+            {
+                using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+                {
+                    entities.Configuration.ProxyCreationEnabled = false;
+                    string currentuserID = User.Identity.GetUserId();
+                    string id = entities.AspNetUsers.Where(x => x.Id == currentuserID).FirstOrDefault().Id;
+                    string email = entities.AspNetUsers.Where(x => x.Id == currentuserID).FirstOrDefault().UserName;
+                    var result = new { userid = id, rootEmail = email };
+                    return Request.CreateResponse(HttpStatusCode.OK, result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
         [Route("AmIinole")]
         public HttpResponseMessage AmIinRole(string role)
         {
