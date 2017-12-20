@@ -72,9 +72,13 @@ namespace Webbanhang.Controllers
                 }
 
                 //Kiểm tra xem sản phẩm đang định bỏ vào giỏ hàng có phải nhỏ hơn stock hay không:
-                if (producttoCheck.Stock < q)
+                var checkCart = CartItemList.FirstOrDefault(x => x.productID == pid);
+                if (checkCart != null)
                 {
-                    return Request.CreateResponse(HttpStatusCode.NotAcceptable, "Chỉ được đặt mua số lượng nhỏ hơn stock.");
+                    if ( q + checkCart.quantity > producttoCheck.Stock)
+                    {
+                        return Request.CreateResponse(HttpStatusCode.NotAcceptable, "Chỉ được đặt mua số lượng nhỏ hơn stock.");
+                    }
                 }
 
                 //Tìm thử xem có sẵn chưa, nếu có rồi thì chỉ cộng thêm số lượng
