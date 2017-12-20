@@ -331,5 +331,23 @@ namespace Webbanhang.Controllers
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
             }
         }
+
+        [HttpGet]
+        [Route("api/Userinfos/GetUserMailByUserID")]
+        public HttpResponseMessage GetUserMailByUserID([FromUri] string uid)
+        {
+            try
+            {
+                using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+                {
+                    entities.Configuration.ProxyCreationEnabled = false;
+                    return Request.CreateResponse(HttpStatusCode.OK, entities.AspNetUsers.FirstOrDefault(x => x.Id == uid).UserName);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
     }
 }
