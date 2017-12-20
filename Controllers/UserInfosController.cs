@@ -310,5 +310,26 @@ namespace Webbanhang.Controllers
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
             }
         }
+
+        [HttpGet]
+        [Route("api/Userinfos/GetUserNameByProductID")]
+        public HttpResponseMessage GetUserNameByProductID([FromUri] int pid)
+        {
+            try
+            {
+                using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+                {
+                    entities.Configuration.ProxyCreationEnabled = false;
+                    var producttoFind = entities.Products.FirstOrDefault(x => x.ProductID == pid);
+                    string sellerID = producttoFind.UserID;
+                    string result = entities.UserInfos.FirstOrDefault(x => x.UserID == sellerID).Name;
+                    return Request.CreateResponse(HttpStatusCode.OK, result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
     }
 }
