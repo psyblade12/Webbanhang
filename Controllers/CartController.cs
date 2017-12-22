@@ -81,6 +81,11 @@ namespace Webbanhang.Controllers
                     }
                 }
 
+                if(q > producttoCheck.Stock)
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotAcceptable, "Chỉ được đặt mua số lượng nhỏ hơn stock.");
+                }
+
                 //Tìm thử xem có sẵn chưa, nếu có rồi thì chỉ cộng thêm số lượng
                 bool flag = false;
                 foreach (CartEntity item in CartItemList)
@@ -125,6 +130,83 @@ namespace Webbanhang.Controllers
                 entities.SaveChanges();
             }
             return Request.CreateResponse(HttpStatusCode.OK, "Đã xóa khỏi giỏ hàng");
+        }
+
+        [HttpGet]
+        [Route("api/Cart/EditCart")]
+        public HttpResponseMessage EditCart([FromUri]int pid = 1, int q = 1)
+        {
+            using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+            {
+                entities.Configuration.ProxyCreationEnabled = false;
+
+                string userid = HttpContext.Current.User.Identity.GetUserId();
+                List<CartEntity> CartItemList = new List<CartEntity>();
+                CartItemList = JsonConvert.DeserializeObject<List<CartEntity>>(entities.UserInfos.FirstOrDefault(e => e.UserID == userid).Cart);
+
+                //Kiểm tra xem sản phẩm đang định bỏ vào giỏ hàng có phải của chính mình hay không:
+                var producttoCheck = entities.Products.Where(x => x.ProductID == pid).FirstOrDefault();
+                if (producttoCheck.UserID == userid)
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotAcceptable, "Không được mua hàng của chính mình.");
+                }
+
+                //Kiểm tra xem sản phẩm đang định bỏ vào giỏ hàng có phải nhỏ hơn stock hay không:
+                var checkCart = CartItemList.FirstOrDefault(x => x.productID == pid);
+                if (checkCart != null)
+                {
+                    if (q + checkCart.quantity > producttoCheck.Stock)
+                    {
+                        return Request.CreateResponse(HttpStatusCode.NotAcceptable, "Chỉ được đặt mua số lượng nhỏ hơn stock.");
+                    }
+                }
+
+                if (q > producttoCheck.Stock)
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotAcceptable, "Chỉ được đặt mua số lượng nhỏ hơn stock.");
+                }
+
+                //Tìm thử xem có sẵn chưa, nếu có rồi thì chỉ cộng thêm số lượng
+                bool flag = false;
+                foreach (CartEntity item in CartItemList)
+                {
+                    if (item.productID == pid)
+                    {
+                        item.quantity = q;
+                        flag = true;
+                    }
+                }
+                if (flag == false)
+                {
+                    CartItemList.Add(new CartEntity { productID = pid, quantity = q });
+                }
+
+                var entity = entities.UserInfos.FirstOrDefault(e => e.UserID == userid);
+                entity.Cart = JsonConvert.SerializeObject(CartItemList);
+
+                entities.SaveChanges();
+            }
+            return Request.CreateResponse(HttpStatusCode.OK, "Đã sửa thành công");
+        }
+
+        [HttpGet]
+        [Route("api/Cart/CheckValid")]
+        public HttpResponseMessage CheckValid([FromUri]int pid = 1, int q = 1, int qInCart = 0)
+        {
+            using (WebbanhangDBEntities entities = new WebbanhangDBEntities())
+            {
+                entities.Configuration.ProxyCreationEnabled = false;
+                var producttoCheck = entities.Products.Where(x => x.ProductID == pid).FirstOrDefault();
+                //Kiểm tra xem sản phẩm đang định bỏ vào giỏ hàng có phải nhỏ hơn stock hay không:
+                if (q + qInCart > producttoCheck.Stock)
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, false);
+                }
+                else
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, true);
+                }
+            }
         }
     }
 }

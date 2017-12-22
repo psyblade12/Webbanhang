@@ -87,7 +87,7 @@ namespace Webbanhang.Controllers
                     client.DeliveryMethod = SmtpDeliveryMethod.Network;
                     client.UseDefaultCredentials = false;
                     client.Credentials = new System.Net.NetworkCredential("psybladebackup@gmail.com", "hoahoa123");
-                    MailMessage mm = new MailMessage("psybladebackup@gmail.com", User.Identity.Name, "Mua hàng", "Bạn đã đặt hóa đơn thành công");
+                    MailMessage mm = new MailMessage("psybladebackup@gmail.com", User.Identity.Name, "Mua hàng", "Bạn đã đặt hóa đơn thành công, vào đây để xem lại hóa đơn: http://localhost:8000/bill");
                     mm.BodyEncoding = UTF8Encoding.UTF8;
                     mm.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
                     client.Send(mm);
