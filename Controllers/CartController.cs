@@ -143,6 +143,11 @@ namespace Webbanhang.Controllers
                 string userid = HttpContext.Current.User.Identity.GetUserId();
                 List<CartEntity> CartItemList = new List<CartEntity>();
                 CartItemList = JsonConvert.DeserializeObject<List<CartEntity>>(entities.UserInfos.FirstOrDefault(e => e.UserID == userid).Cart);
+                //Kiểm tra q có bằng 0 hay không, nếu bằng thì ko cho sửa
+                if (q <= 0)
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.NotAcceptable, "Không được sửa thành 0 hoặc nhỏ hơn 0");
+                }
 
                 //Kiểm tra xem sản phẩm đang định bỏ vào giỏ hàng có phải của chính mình hay không:
                 var producttoCheck = entities.Products.Where(x => x.ProductID == pid).FirstOrDefault();
@@ -152,15 +157,6 @@ namespace Webbanhang.Controllers
                 }
 
                 //Kiểm tra xem sản phẩm đang định bỏ vào giỏ hàng có phải nhỏ hơn stock hay không:
-                var checkCart = CartItemList.FirstOrDefault(x => x.productID == pid);
-                if (checkCart != null)
-                {
-                    if (q + checkCart.quantity > producttoCheck.Stock)
-                    {
-                        return Request.CreateResponse(HttpStatusCode.NotAcceptable, "Chỉ được đặt mua số lượng nhỏ hơn stock.");
-                    }
-                }
-
                 if (q > producttoCheck.Stock)
                 {
                     return Request.CreateResponse(HttpStatusCode.NotAcceptable, "Chỉ được đặt mua số lượng nhỏ hơn stock.");
